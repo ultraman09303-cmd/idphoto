@@ -29,6 +29,9 @@ header p{font-size:13px;color:#64748b}
 .btn:disabled{background:#94a3b8;cursor:not-allowed}
 .btn2{background:#fff;color:#1e293b;border:1px solid #e2e8f0;padding:10px 22px;border-radius:8px;font-size:15px;cursor:pointer}
 .btn2:hover{border-color:#2563eb;color:#2563eb}
+.btn-ai{background:#10b981;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:14px;cursor:pointer;margin-top:10px}
+.btn-ai:hover{background:#059669}
+.btn-ai:disabled{background:#94a3b8;cursor:not-allowed}
 .size-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .size-btn{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;font-size:13px}
 .size-btn:hover,.size-btn.active{border-color:#2563eb;background:#eff6ff}
@@ -42,6 +45,10 @@ header p{font-size:13px;color:#64748b}
 .preview-col{flex:1;min-width:220px;text-align:center}
 .preview-col h4{font-size:13px;color:#64748b;margin-bottom:8px}
 .preview-col canvas,.preview-col img{max-width:100%;max-height:380px;border-radius:8px;border:1px solid #e2e8f0}
+.tolerance-wrap{margin:12px 0;display:flex;align-items:center;gap:12px;font-size:14px;color:#64748b}
+.tolerance-wrap input[type=range]{flex:1;max-width:300px}
+.click-hint{background:#eff6ff;border:2px dashed #2563eb;border-radius:12px;padding:16px;text-align:center;margin:12px 0;color:#2563eb;font-size:14px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .progress{width:100%;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin:14px 0}
 .progress .fill{height:100%;background:#2563eb;border-radius:3px;transition:width .3s}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
@@ -60,8 +67,9 @@ header p{font-size:13px;color:#64748b}
 .faq p{font-size:13px;color:#64748b}
 .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999}
-.loading-card{background:#fff;border-radius:16px;padding:32px;text-align:center;max-width:300px}
+.ai-status{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:13px;color:#166534;margin:10px 0}
+.ai-status.loading{background:#fefce8;border-color:#fde68a;color:#92400e}
+.ai-status.error{background:#fef2f2;border-color:#fecaca;color:#991b1b}
 footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
 @media(max-width:768px){.hero h2{font-size:20px}.preview-row{flex-direction:column}.size-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}.actions{flex-direction:column}.actions .btn,.actions .btn2{width:100%;justify-content:center}}
 </style>
@@ -71,19 +79,18 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 <header>
 <div class="container">
 <h1>免费证件照在线制作</h1>
-<p>AI智能抠图 · 20+种规格 · 免费使用</p>
+<p>智能抠图 · 20+种规格 · 免费使用</p>
 </div>
 </header>
 
 <section class="hero">
 <div class="container">
-<h2>上传照片，AI自动生成证件照</h2>
-<p>智能抠图去背景，一键换底色，支持一寸、二寸、护照、签证等全部规格</p>
+<h2>上传照片，自动生成证件照</h2>
+<p>点击背景色去除，AI精修可选升级，支持一寸、二寸、护照、签证等全部规格</p>
 </div>
 </section>
 
 <main class="container" id="app">
-<!-- 上传区 -->
 <div class="tool-card" id="upload-section">
 <h3>上传照片</h3>
 <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
@@ -94,30 +101,42 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 <input type="file" id="file-input" accept="image/*" style="display:none"/>
 </div>
 
-<!-- 处理中 -->
-<div class="tool-card" id="processing-section" style="display:none;text-align:center;padding:48px 24px">
-<div class="spinner"></div>
-<h3 id="progress-text">正在加载AI模型...</h3>
-<div class="progress"><div class="fill" id="progress-bar" style="width:0%"></div></div>
-<p style="font-size:12px;color:#94a3b8">首次使用需下载AI模型(约40MB)，请耐心等待</p>
+<div id="click-section" style="display:none">
+<div class="tool-card">
+<h3>第一步：点击照片背景色</h3>
+<div class="click-hint" id="click-hint">在下方照片中<strong>点击背景</strong>（如墙壁、天空），自动去除该颜色区域</div>
+<div style="text-align:center">
+<canvas id="click-canvas" style="max-width:100%;max-height:400px;border-radius:8px;border:1px solid #e2e8f0;cursor:crosshair"/>
+</div>
+<div class="tolerance-wrap">
+<span>容差：</span>
+<input type="range" id="tolerance" min="5" max="80" value="30"/>
+<span id="tolerance-val">30</span>
+</div>
+<div class="actions">
+<button class="btn" onclick="applyColorKey()">确认抠图</button>
+<button class="btn2" onclick="resetTool()">重新上传</button>
+</div>
+</div>
 </div>
 
-<!-- 结果区 -->
 <div id="result-section" style="display:none">
+<div class="tool-card">
+<div id="ai-upgrade" style="display:none">
+<div class="ai-status loading" id="ai-status">⏳ AI模型加载中（后台），完成后可升级为AI精修版...</div>
+</div>
+</div>
 
-<!-- 尺寸选择 -->
 <div class="tool-card">
 <h3>选择照片规格</h3>
 <div class="size-grid" id="size-grid"></div>
 </div>
 
-<!-- 底色选择 -->
 <div class="tool-card">
 <h3>选择底色</h3>
 <div class="color-grid" id="color-grid"></div>
 </div>
 
-<!-- 预览 -->
 <div class="tool-card">
 <h3>预览效果</h3>
 <div class="preview-row">
@@ -126,16 +145,15 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 </div>
 </div>
 
-<!-- 操作按钮 -->
 <div class="tool-card">
 <div class="actions">
 <button class="btn" onclick="downloadPhoto()">下载证件照</button>
 <button class="btn2" onclick="printPhoto()">排版打印 (6寸纸)</button>
+<button class="btn2" onclick="backToClick()">调整抠图</button>
 <button class="btn2" onclick="resetTool()">重新上传</button>
 </div>
 </div>
 
-<!-- 赞赏 -->
 <div class="payment">
 <h3>支持我们</h3>
 <p style="color:#92400e;font-size:14px">如果这个工具对你有帮助，欢迎扫码赞赏</p>
@@ -144,11 +162,10 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 </div>
 </div>
 
-<!-- SEO内容 -->
 <section class="seo">
 <h2>在线制作证件照 - 操作指南</h2>
 <h3>如何使用?</h3>
-<p>三步制作证件照：上传正面免冠照片 → AI自动抠图换底色 → 选择规格下载。全程浏览器本地处理，照片不上传服务器。</p>
+<p>上传照片 → 点击背景色去除 → 选择规格底色 → 下载。支持两种抠图模式：快速色键抠图（秒开）和AI智能抠图（更精准）。</p>
 <h3>支持的规格</h3>
 <table>
 <thead><tr><th>类型</th><th>尺寸</th><th>像素</th><th>用途</th></tr></thead>
@@ -166,6 +183,7 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 <p><strong>蓝底</strong>：毕业证、工作证、简历 — RGB(67,142,219)</p>
 <p><strong>红底</strong>：结婚证、保险、医保 — RGB(208,60,51)</p>
 <h3>常见问题</h3>
+<div class="faq"><h4>Q: 两种抠图模式有什么区别?</h4><p>色键抠图：点击背景色去除，速度快，适合背景均匀的照片。AI抠图：自动识别前景人物，更精准，但首次需下载模型。</p></div>
 <div class="faq"><h4>Q: 可以用手机自拍吗?</h4><p>可以。建议正面面对光源，在白色墙壁前拍摄。</p></div>
 <div class="faq"><h4>Q: 打印几张合适?</h4><p>一寸照片在6寸纸上排8张，二寸排4张。</p></div>
 <div class="faq"><h4>Q: 照片安全吗?</h4><p>所有处理在浏览器本地完成，照片不会上传到任何服务器。</p></div>
@@ -174,7 +192,7 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 
 <footer>
 <div class="container">
-<p>免费证件照在线制作工具 · AI智能抠图 · 永久免费</p>
+<p>免费证件照在线制作工具 · 智能抠图 · 永久免费</p>
 </div>
 </footer>
 
@@ -204,9 +222,13 @@ const COLORS=[
 {id:'red',name:'红底',color:'#d03c33',border:'#d03c33'},
 ];
 
-let selSize=SIZES[0], selColor=COLORS[0], processedUrl=null, originalSrc=null;
+let selSize=SIZES[0], selColor=COLORS[0];
+let originalImg=null; // HTMLImageElement
+let cutoutCanvas=null; // canvas with transparent background
+let aiModelReady=false, aiRemoveBg=null;
+let toleranceVal=30;
 
-// ===== 渲染UI =====
+// ===== UI渲染 =====
 const sizeGrid=document.getElementById('size-grid');
 SIZES.forEach((s,i)=>{
 const d=document.createElement('div');
@@ -225,10 +247,13 @@ b.onclick=()=>{document.querySelectorAll('.color-btn').forEach(x=>x.classList.re
 colorGrid.appendChild(b);
 });
 
+const tolSlider=document.getElementById('tolerance');
+const tolVal=document.getElementById('tolerance-val');
+tolSlider.oninput=()=>{toleranceVal=+tolSlider.value;tolVal.textContent=toleranceVal};
+
 // ===== 文件上传 =====
 const dropZone=document.getElementById('drop-zone');
 const fileInput=document.getElementById('file-input');
-
 dropZone.ondragover=e=>{e.preventDefault();dropZone.classList.add('dragover')};
 dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
 dropZone.ondrop=e=>{e.preventDefault();dropZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])};
@@ -238,82 +263,190 @@ function handleFile(file){
 if(!file.type.startsWith('image/'))return;
 const reader=new FileReader();
 reader.onload=e=>{
-originalSrc=e.target.result;
-processImage(originalSrc);
+const img=new Image();
+img.onload=()=>{
+originalImg=img;
+showClickStep();
+startAiModelLoad();
+};
+img.src=e.target.result;
 };
 reader.readAsDataURL(file);
 }
 
-// ===== AI抠图 =====
-async function processImage(src){
+// ===== 色键抠图步骤 =====
+function showClickStep(){
 document.getElementById('upload-section').style.display='none';
-document.getElementById('processing-section').style.display='block';
+document.getElementById('click-section').style.display='block';
 document.getElementById('result-section').style.display='none';
 
-try{
-const pb=document.getElementById('progress-bar');
-const pt=document.getElementById('progress-text');
-
-pt.textContent='正在加载AI模型...';
-pb.style.width='10%';
-
-const{removeBackground}=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.13/+esm');
-
-pt.textContent='AI识别中...';
-pb.style.width='30%';
-
-const resp=await fetch(src);
-const blob=await resp.blob();
-
-pt.textContent='AI抠图处理中...';
-pb.style.width='50%';
-
-const result=await removeBackground(blob,{
-progress:(key,current,total)=>{
-if(key==='compute:inference'){
-const pct=50+Math.round((current/total)*40);
-pb.style.width=pct+'%';
-pt.textContent='AI处理中 '+Math.round((current/total)*100)+'%...';
+const canvas=document.getElementById('click-canvas');
+const ctx=canvas.getContext('2d');
+// 缩放到合理尺寸
+const maxW=600,maxH=500;
+let w=originalImg.width,h=originalImg.height;
+if(w>maxW){h=h*maxW/w;w=maxW}
+if(h>maxH){w=w*maxH/h;h=maxH}
+canvas.width=w;canvas.height=h;
+ctx.drawImage(originalImg,0,0,w,h);
+canvas.onclick=e=>{
+const rect=canvas.getBoundingClientRect();
+const x=Math.round((e.clientX-rect.left)*canvas.width/rect.width);
+const y=Math.round((e.clientY-rect.top)*canvas.height/rect.height);
+const pixel=ctx.getImageData(x,y,1,1).data;
+const hint=document.getElementById('click-hint');
+hint.innerHTML=`已选取颜色 RGB(${pixel[0]},${pixel[1]},${pixel[2]}) — 点击<strong>确认抠图</strong>按钮`;
+hint.style.borderColor='#10b981';
+hint.style.background='#f0fdf4';
+hint.style.color='#166534';
+canvas._clickedColor={r:pixel[0],g:pixel[1],b:pixel[2]};
+};
 }
+
+function applyColorKey(){
+const canvas=document.getElementById('click-canvas');
+const clickColor=canvas._clickedColor;
+if(!clickColor){alert('请先点击照片中的背景色');return}
+
+const ctx=canvas.getContext('2d');
+// 重新绘制原始图到全尺寸
+const fullCanvas=document.createElement('canvas');
+fullCanvas.width=originalImg.width;fullCanvas.height=originalImg.height;
+const fctx=fullCanvas.getContext('2d');
+fctx.drawImage(originalImg,0,0);
+const imageData=fctx.getImageData(0,0,fullCanvas.width,fullCanvas.height);
+const data=imageData.data;
+const tol=toleranceVal;
+
+// 颜色距离计算
+function colorDist(r1,g1,b1,r2,g2,b2){
+return Math.sqrt((r1-r2)**2+(g1-g2)**2+(b1-b2)**2);
 }
-});
 
-processedUrl=URL.createObjectURL(result);
-pb.style.width='100%';
-pt.textContent='处理完成!';
+// 从图像边缘和点击位置开始泛洪填充
+const w=fullCanvas.width,h=fullCanvas.height;
+const visited=new Uint8Array(w*h);
+const transparent=new Uint8Array(w*h);
+const queue=[];
 
-setTimeout(()=>{
-document.getElementById('processing-section').style.display='none';
+// 种子点：四条边 + 点击位置
+for(let x=0;x<w;x++){queue.push(x,0);queue.push(x,h-1)}
+for(let y=0;y<h;y++){queue.push(0,y);queue.push(w-1,y)}
+const clickX=Math.round(clickColor.x||w/2);
+const clickY=Math.round(clickColor.y||h/2);
+// 从点击位置附近找种子
+const cx=Math.min(w-1,Math.max(0,Math.round(originalImg.width*0.5)));
+const cy=Math.min(h-1,Math.max(0,Math.round(originalImg.height*0.1)));
+for(let dx=-10;dx<=10;dx++)for(let dy=-10;dy<=10;dy++){
+const nx=cx+dx,ny=cy+dy;
+if(nx>=0&&nx<w&&ny>=0&&ny<h)queue.push(nx,ny);
+}
+
+while(queue.length>0){
+const y=queue.pop();
+const x=queue.pop();
+const idx=y*w+x;
+if(visited[idx])continue;
+visited[idx]=1;
+
+const pi=idx*4;
+const dr=data[pi],dg=data[pi+1],db=data[pi+2];
+
+if(colorDist(dr,dg,db,clickColor.r,clickColor.g,clickColor.b)>tol)continue;
+
+transparent[idx]=1;
+data[pi+3]=0; // set alpha to 0
+
+if(x>0&&!visited[idx-1])queue.push(x-1,y);
+if(x<w-1&&!visited[idx+1])queue.push(x+1,y);
+if(y>0&&!visited[idx-w])queue.push(x,y-1);
+if(y<h-1&&!visited[idx+w])queue.push(x,y+1);
+}
+
+fctx.putImageData(imageData,0,0);
+
+// 应用边缘羽化
+const edgeCanvas=document.createElement('canvas');
+edgeCanvas.width=w;edgeCanvas.height=h;
+const ectx=edgeCanvas.getContext('2d');
+ectx.filter='blur(1px)';
+ectx.drawImage(fullCanvas,0,0);
+
+cutoutCanvas=edgeCanvas;
+document.getElementById('click-section').style.display='none';
 document.getElementById('result-section').style.display='block';
-document.getElementById('preview-original').src=originalSrc;
+document.getElementById('preview-original').src=originalImg.src;
+document.getElementById('ai-upgrade').style.display='block';
 renderPreview();
-},300);
+}
 
-}catch(err){
-console.error(err);
-pt.textContent='处理失败，请刷新重试';
+function backToClick(){
+document.getElementById('result-section').style.display='none';
+document.getElementById('click-section').style.display='block';
+showClickStep();
+}
+
+// ===== AI模型后台加载 =====
+async function startAiModelLoad(){
+const statusEl=document.getElementById('ai-status');
+try{
+const{removeBackground}=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.13/+esm');
+aiRemoveBg=removeBackground;
+aiModelReady=true;
+statusEl.className='ai-status';
+statusEl.innerHTML='✅ AI模型已就绪！<button class="btn-ai" onclick="applyAi()">升级为AI精修版</button>';
+}catch(e){
+console.error('AI model load failed:',e);
+statusEl.className='ai-status error';
+statusEl.innerHTML='⚠️ AI模型加载失败（不影响色键抠图功能）';
+}
+}
+
+async function applyAi(){
+if(!aiModelReady||!aiRemoveBg)return;
+const statusEl=document.getElementById('ai-status');
+statusEl.className='ai-status loading';
+statusEl.innerHTML='⏳ AI精修处理中...';
+
+try{
+const resp=await fetch(originalImg.src);
+const blob=await resp.blob();
+const result=await aiRemoveBg(blob);
+const url=URL.createObjectURL(result);
+const img=new Image();
+img.onload=()=>{
+cutoutCanvas=document.createElement('canvas');
+cutoutCanvas.width=img.width;cutoutCanvas.height=img.height;
+cutoutCanvas.getContext('2d').drawImage(img,0,0);
+renderPreview();
+statusEl.className='ai-status';
+statusEl.innerHTML='✅ AI精修已完成！';
+};
+img.src=url;
+}catch(e){
+console.error(e);
+statusEl.className='ai-status error';
+statusEl.innerHTML='⚠️ AI处理失败，当前使用色键抠图版本';
 }
 }
 
 // ===== 渲染预览 =====
 function renderPreview(){
-if(!processedUrl)return;
+if(!cutoutCanvas)return;
 const canvas=document.getElementById('preview-canvas');
 const ctx=canvas.getContext('2d');
 canvas.width=selSize.wp;
 canvas.height=selSize.hp;
-
 ctx.fillStyle=selColor.color;
 ctx.fillRect(0,0,selSize.wp,selSize.hp);
-
 const img=new Image();
 img.onload=()=>{
 const scale=Math.max(selSize.wp/img.width,selSize.hp/img.height);
-const sw=selSize.wp/scale, sh=selSize.hp/scale;
-const sx=(img.width-sw)/2, sy=(img.height-sh)/2*0.8;
+const sw=selSize.wp/scale,sh=selSize.hp/scale;
+const sx=(img.width-sw)/2,sy=(img.height-sh)/2*0.8;
 ctx.drawImage(img,sx,sy,sw,sh,0,0,selSize.wp,selSize.hp);
 };
-img.src=processedUrl;
+img.src=cutoutCanvas.toDataURL();
 }
 
 // ===== 下载 =====
@@ -321,8 +454,6 @@ function downloadPhoto(){
 const canvas=document.getElementById('preview-canvas');
 const link=document.createElement('a');
 link.download=`证件照_${selSize.name}_${selColor.name}.png`;
-
-// 免费版加水印
 const tmp=document.createElement('canvas');
 tmp.width=canvas.width;tmp.height=canvas.height;
 const ctx=tmp.getContext('2d');
@@ -354,10 +485,11 @@ w.document.write(`<html><body style="margin:0;display:flex;justify-content:cente
 // ===== 重置 =====
 function resetTool(){
 document.getElementById('upload-section').style.display='block';
-document.getElementById('processing-section').style.display='none';
+document.getElementById('click-section').style.display='none';
 document.getElementById('result-section').style.display='none';
-processedUrl=null;originalSrc=null;
+originalImg=null;cutoutCanvas=null;
 fileInput.value='';
+document.getElementById('ai-upgrade').style.display='none';
 }
 </script>
 </body>
