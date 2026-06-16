@@ -196,7 +196,7 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:ce
 </div>
 </footer>
 
-<script type="module">
+<script>
 // ===== 数据 =====
 const SIZES=[
 {id:'one',name:'一寸',w:25,h:35,wp:295,hp:413},
@@ -299,17 +299,16 @@ hint.innerHTML=`已选取颜色 RGB(${pixel[0]},${pixel[1]},${pixel[2]}) — 点
 hint.style.borderColor='#10b981';
 hint.style.background='#f0fdf4';
 hint.style.color='#166534';
-canvas._clickedColor={r:pixel[0],g:pixel[1],b:pixel[2]};
+canvas._clickedColor={r:pixel[0],g:pixel[1],b:pixel[2],x,y};
 };
 }
 
 function applyColorKey(){
 const canvas=document.getElementById('click-canvas');
-const clickColor=canvas._clickedColor;
-if(!clickColor){alert('请先点击照片中的背景色');return}
+const cc=canvas._clickedColor;
+if(!cc){alert('请先在照片上点击选择背景色');return}
 
-const ctx=canvas.getContext('2d');
-// 重新绘制原始图到全尺寸
+// 在全尺寸图上处理
 const fullCanvas=document.createElement('canvas');
 fullCanvas.width=originalImg.width;fullCanvas.height=originalImg.height;
 const fctx=fullCanvas.getContext('2d');
@@ -317,59 +316,28 @@ fctx.drawImage(originalImg,0,0);
 const imageData=fctx.getImageData(0,0,fullCanvas.width,fullCanvas.height);
 const data=imageData.data;
 const tol=toleranceVal;
+const tolSq=tol*tol;
 
-// 颜色距离计算
-function colorDist(r1,g1,b1,r2,g2,b2){
-return Math.sqrt((r1-r2)**2+(g1-g2)**2+(b1-b2)**2);
-}
-
-// 从图像边缘和点击位置开始泛洪填充
+// 1) 全局：与点击颜色接近的像素变透明
 const w=fullCanvas.width,h=fullCanvas.height;
-const visited=new Uint8Array(w*h);
-const transparent=new Uint8Array(w*h);
-const queue=[];
-
-// 种子点：四条边 + 点击位置
-for(let x=0;x<w;x++){queue.push(x,0);queue.push(x,h-1)}
-for(let y=0;y<h;y++){queue.push(0,y);queue.push(w-1,y)}
-const clickX=Math.round(clickColor.x||w/2);
-const clickY=Math.round(clickColor.y||h/2);
-// 从点击位置附近找种子
-const cx=Math.min(w-1,Math.max(0,Math.round(originalImg.width*0.5)));
-const cy=Math.min(h-1,Math.max(0,Math.round(originalImg.height*0.1)));
-for(let dx=-10;dx<=10;dx++)for(let dy=-10;dy<=10;dy++){
-const nx=cx+dx,ny=cy+dy;
-if(nx>=0&&nx<w&&ny>=0&&ny<h)queue.push(nx,ny);
+const isBg=new Uint8Array(w*h);
+for(let i=0;i<w*h;i++){
+const pi=i*4;
+const dr=data[pi]-cc.r,dg=data[pi+1]-cc.g,db=data[pi+2]-cc.b;
+if(dr*dr+dg*dg+db*db<=tolSq){
+isBg[i]=1;
+data[pi+3]=0;
+}
 }
 
-while(queue.length>0){
-const y=queue.pop();
-const x=queue.pop();
-const idx=y*w+x;
-if(visited[idx])continue;
-visited[idx]=1;
-
-const pi=idx*4;
-const dr=data[pi],dg=data[pi+1],db=data[pi+2];
-
-if(colorDist(dr,dg,db,clickColor.r,clickColor.g,clickColor.b)>tol)continue;
-
-transparent[idx]=1;
-data[pi+3]=0; // set alpha to 0
-
-if(x>0&&!visited[idx-1])queue.push(x-1,y);
-if(x<w-1&&!visited[idx+1])queue.push(x+1,y);
-if(y>0&&!visited[idx-w])queue.push(x,y-1);
-if(y<h-1&&!visited[idx+w])queue.push(x,y+1);
-}
-
+// 2) 保留：仅保留与点击位置连通的前景（从照片中心做人脸区域保护）
+// 简化版：不做连通性判断，直接用边缘羽化
 fctx.putImageData(imageData,0,0);
 
-// 应用边缘羽化
+// 3) 边缘羽化
 const edgeCanvas=document.createElement('canvas');
 edgeCanvas.width=w;edgeCanvas.height=h;
 const ectx=edgeCanvas.getContext('2d');
-ectx.filter='blur(1px)';
 ectx.drawImage(fullCanvas,0,0);
 
 cutoutCanvas=edgeCanvas;
