@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>免费证件照在线制作 - AI智能抠图换底色</title>
+<meta name="description" content="免费在线制作证件照，AI智能抠图一键去背景换底色。支持一寸、二寸、护照、签证等20+种规格。"/>
+<meta name="keywords" content="证件照在线制作,免费证件照,证件照换底色,一寸照片,二寸照片,护照照片,AI抠图"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"免费证件照在线制作","description":"AI智能抠图，免费制作证件照","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6}
+.container{max-width:960px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 0;position:sticky;top:0;z-index:100}
+header h1{font-size:20px;color:#2563eb}
+header p{font-size:13px;color:#64748b}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#eff6ff,#f0f9ff)}
+.hero h2{font-size:26px;margin-bottom:10px}
+.hero p{font-size:15px;color:#64748b;max-width:600px;margin:0 auto}
+.tool-card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin:24px 0}
+.tool-card h3{font-size:17px;margin-bottom:14px}
+.upload-area{border:2px dashed #cbd5e1;border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc}
+.upload-area:hover,.upload-area.dragover{border-color:#2563eb;background:#eff6ff}
+.upload-area svg{width:48px;height:48px;color:#94a3b8;margin-bottom:12px}
+.upload-area p{color:#64748b}
+.btn{display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:15px;cursor:pointer;transition:background .2s}
+.btn:hover{background:#1d4ed8}
+.btn:disabled{background:#94a3b8;cursor:not-allowed}
+.btn2{background:#fff;color:#1e293b;border:1px solid #e2e8f0;padding:10px 22px;border-radius:8px;font-size:15px;cursor:pointer}
+.btn2:hover{border-color:#2563eb;color:#2563eb}
+.size-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.size-btn{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all .2s;font-size:13px}
+.size-btn:hover,.size-btn.active{border-color:#2563eb;background:#eff6ff}
+.size-btn .nm{font-weight:600;font-size:14px}
+.size-btn .sp{color:#64748b;font-size:12px;margin-top:2px}
+.color-grid{display:flex;gap:14px;flex-wrap:wrap}
+.color-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:14px}
+.color-btn:hover,.color-btn.active{border-color:#2563eb;background:#eff6ff}
+.swatch{width:22px;height:22px;border-radius:50%;border:1px solid #e2e8f0}
+.preview-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px}
+.preview-col{flex:1;min-width:220px;text-align:center}
+.preview-col h4{font-size:13px;color:#64748b;margin-bottom:8px}
+.preview-col canvas,.preview-col img{max-width:100%;max-height:380px;border-radius:8px;border:1px solid #e2e8f0}
+.progress{width:100%;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin:14px 0}
+.progress .fill{height:100%;background:#2563eb;border-radius:3px;transition:width .3s}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.payment{text-align:center;padding:28px;background:linear-gradient(135deg,#fefce8,#fef9c3);border-radius:12px;margin:28px 0}
+.payment h3{color:#92400e;margin-bottom:8px}
+.qr{width:180px;height:180px;margin:14px auto;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;color:#94a3b8;font-size:14px}
+.seo{padding:28px 0}
+.seo h2{font-size:20px;margin-bottom:14px}
+.seo h3{font-size:16px;margin:18px 0 8px}
+.seo p{margin-bottom:10px;color:#64748b;font-size:14px}
+.seo table{width:100%;border-collapse:collapse;margin:14px 0}
+.seo th,.seo td{padding:8px 12px;text-align:left;border-bottom:1px solid #e2e8f0;font-size:13px}
+.seo th{background:#f8fafc;font-weight:600}
+.faq{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.faq h4{font-size:14px;margin-bottom:4px}
+.faq p{font-size:13px;color:#64748b}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999}
+.loading-card{background:#fff;border-radius:16px;padding:32px;text-align:center;max-width:300px}
+footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+@media(max-width:768px){.hero h2{font-size:20px}.preview-row{flex-direction:column}.size-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}.actions{flex-direction:column}.actions .btn,.actions .btn2{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="container">
+<h1>免费证件照在线制作</h1>
+<p>AI智能抠图 · 20+种规格 · 免费使用</p>
+</div>
+</header>
+
+<section class="hero">
+<div class="container">
+<h2>上传照片，AI自动生成证件照</h2>
+<p>智能抠图去背景，一键换底色，支持一寸、二寸、护照、签证等全部规格</p>
+</div>
+</section>
+
+<main class="container" id="app">
+<!-- 上传区 -->
+<div class="tool-card" id="upload-section">
+<h3>上传照片</h3>
+<div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0L8 8m4-4l4 4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<p><strong>点击上传</strong>或拖拽照片到此处</p>
+<p style="font-size:13px;margin-top:6px;color:#94a3b8">支持 JPG、PNG，建议正面免冠照片</p>
+</div>
+<input type="file" id="file-input" accept="image/*" style="display:none"/>
+</div>
+
+<!-- 处理中 -->
+<div class="tool-card" id="processing-section" style="display:none;text-align:center;padding:48px 24px">
+<div class="spinner"></div>
+<h3 id="progress-text">正在加载AI模型...</h3>
+<div class="progress"><div class="fill" id="progress-bar" style="width:0%"></div></div>
+<p style="font-size:12px;color:#94a3b8">首次使用需下载AI模型(约40MB)，请耐心等待</p>
+</div>
+
+<!-- 结果区 -->
+<div id="result-section" style="display:none">
+
+<!-- 尺寸选择 -->
+<div class="tool-card">
+<h3>选择照片规格</h3>
+<div class="size-grid" id="size-grid"></div>
+</div>
+
+<!-- 底色选择 -->
+<div class="tool-card">
+<h3>选择底色</h3>
+<div class="color-grid" id="color-grid"></div>
+</div>
+
+<!-- 预览 -->
+<div class="tool-card">
+<h3>预览效果</h3>
+<div class="preview-row">
+<div class="preview-col"><h4>原始照片</h4><img id="preview-original"/></div>
+<div class="preview-col"><h4>证件照预览</h4><canvas id="preview-canvas"/></div>
+</div>
+</div>
+
+<!-- 操作按钮 -->
+<div class="tool-card">
+<div class="actions">
+<button class="btn" onclick="downloadPhoto()">下载证件照</button>
+<button class="btn2" onclick="printPhoto()">排版打印 (6寸纸)</button>
+<button class="btn2" onclick="resetTool()">重新上传</button>
+</div>
+</div>
+
+<!-- 赞赏 -->
+<div class="payment">
+<h3>支持我们</h3>
+<p style="color:#92400e;font-size:14px">如果这个工具对你有帮助，欢迎扫码赞赏</p>
+<div class="qr">收款码待添加</div>
+<p style="font-size:12px;color:#94a3b8">微信 / 支付宝 扫码付款 · 赞赏6.9元解锁高清无水印</p>
+</div>
+</div>
+
+<!-- SEO内容 -->
+<section class="seo">
+<h2>在线制作证件照 - 操作指南</h2>
+<h3>如何使用?</h3>
+<p>三步制作证件照：上传正面免冠照片 → AI自动抠图换底色 → 选择规格下载。全程浏览器本地处理，照片不上传服务器。</p>
+<h3>支持的规格</h3>
+<table>
+<thead><tr><th>类型</th><th>尺寸</th><th>像素</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td>一寸</td><td>25×35mm</td><td>295×413px</td><td>常用证件、考试报名</td></tr>
+<tr><td>二寸</td><td>35×49mm</td><td>413×579px</td><td>毕业证、工作证</td></tr>
+<tr><td>小一寸</td><td>22×32mm</td><td>260×378px</td><td>驾驶证</td></tr>
+<tr><td>护照</td><td>33×48mm</td><td>390×567px</td><td>护照、签证</td></tr>
+<tr><td>美国签证</td><td>51×51mm</td><td>600×600px</td><td>美签申请</td></tr>
+<tr><td>日本签证</td><td>45×45mm</td><td>531×531px</td><td>日签申请</td></tr>
+</tbody>
+</table>
+<h3>底色怎么选?</h3>
+<p><strong>白底</strong>：护照、签证、身份证 — RGB(255,255,255)</p>
+<p><strong>蓝底</strong>：毕业证、工作证、简历 — RGB(67,142,219)</p>
+<p><strong>红底</strong>：结婚证、保险、医保 — RGB(208,60,51)</p>
+<h3>常见问题</h3>
+<div class="faq"><h4>Q: 可以用手机自拍吗?</h4><p>可以。建议正面面对光源，在白色墙壁前拍摄。</p></div>
+<div class="faq"><h4>Q: 打印几张合适?</h4><p>一寸照片在6寸纸上排8张，二寸排4张。</p></div>
+<div class="faq"><h4>Q: 照片安全吗?</h4><p>所有处理在浏览器本地完成，照片不会上传到任何服务器。</p></div>
+</section>
+</main>
+
+<footer>
+<div class="container">
+<p>免费证件照在线制作工具 · AI智能抠图 · 永久免费</p>
+</div>
+</footer>
+
+<script type="module">
+// ===== 数据 =====
+const SIZES=[
+{id:'one',name:'一寸',w:25,h:35,wp:295,hp:413},
+{id:'two',name:'二寸',w:35,h:49,wp:413,hp:579},
+{id:'sone',name:'小一寸',w:22,h:32,wp:260,hp:378},
+{id:'stwo',name:'小二寸',w:35,h:45,wp:413,hp:531},
+{id:'lone',name:'大一寸',w:33,h:48,wp:390,hp:567},
+{id:'cet',name:'四六级',w:25,h:35,wp:295,hp:413},
+{id:'grad',name:'考研报名',w:33,h:48,wp:390,hp:567},
+{id:'civil',name:'公务员',w:25,h:35,wp:295,hp:413},
+{id:'teacher',name:'教师资格证',w:33,h:48,wp:390,hp:567},
+{id:'passport',name:'中国护照',w:33,h:48,wp:390,hp:567},
+{id:'usvisa',name:'美国签证',w:51,h:51,wp:600,hp:600},
+{id:'jpvisa',name:'日本签证',w:45,h:45,wp:531,hp:531},
+{id:'krvisa',name:'韩国签证',w:35,h:45,wp:413,hp:531},
+{id:'idcard',name:'身份证',w:26,h:32,wp:307,hp:378},
+{id:'driver',name:'驾驶证',w:22,h:32,wp:260,hp:378},
+{id:'resume',name:'简历照',w:25,h:35,wp:295,hp:413},
+];
+const COLORS=[
+{id:'white',name:'白底',color:'#ffffff',border:'#e2e8f0'},
+{id:'blue',name:'蓝底',color:'#438edb',border:'#438edb'},
+{id:'red',name:'红底',color:'#d03c33',border:'#d03c33'},
+];
+
+let selSize=SIZES[0], selColor=COLORS[0], processedUrl=null, originalSrc=null;
+
+// ===== 渲染UI =====
+const sizeGrid=document.getElementById('size-grid');
+SIZES.forEach((s,i)=>{
+const d=document.createElement('div');
+d.className='size-btn'+(i===0?' active':'');
+d.innerHTML=`<div class="nm">${s.name}</div><div class="sp">${s.w}×${s.h}mm</div>`;
+d.onclick=()=>{document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));d.classList.add('active');selSize=s;renderPreview()};
+sizeGrid.appendChild(d);
+});
+
+const colorGrid=document.getElementById('color-grid');
+COLORS.forEach((c,i)=>{
+const b=document.createElement('button');
+b.className='color-btn'+(i===0?' active':'');
+b.innerHTML=`<div class="swatch" style="background:${c.color};${c.border==='#ffffff'?'border:1px solid #e2e8f0':''}"></div><span>${c.name}</span>`;
+b.onclick=()=>{document.querySelectorAll('.color-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');selColor=c;renderPreview()};
+colorGrid.appendChild(b);
+});
+
+// ===== 文件上传 =====
+const dropZone=document.getElementById('drop-zone');
+const fileInput=document.getElementById('file-input');
+
+dropZone.ondragover=e=>{e.preventDefault();dropZone.classList.add('dragover')};
+dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
+dropZone.ondrop=e=>{e.preventDefault();dropZone.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])};
+fileInput.onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0])};
+
+function handleFile(file){
+if(!file.type.startsWith('image/'))return;
+const reader=new FileReader();
+reader.onload=e=>{
+originalSrc=e.target.result;
+processImage(originalSrc);
+};
+reader.readAsDataURL(file);
+}
+
+// ===== AI抠图 =====
+async function processImage(src){
+document.getElementById('upload-section').style.display='none';
+document.getElementById('processing-section').style.display='block';
+document.getElementById('result-section').style.display='none';
+
+try{
+const pb=document.getElementById('progress-bar');
+const pt=document.getElementById('progress-text');
+
+pt.textContent='正在加载AI模型...';
+pb.style.width='10%';
+
+const{removeBackground}=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.13/+esm');
+
+pt.textContent='AI识别中...';
+pb.style.width='30%';
+
+const resp=await fetch(src);
+const blob=await resp.blob();
+
+pt.textContent='AI抠图处理中...';
+pb.style.width='50%';
+
+const result=await removeBackground(blob,{
+progress:(key,current,total)=>{
+if(key==='compute:inference'){
+const pct=50+Math.round((current/total)*40);
+pb.style.width=pct+'%';
+pt.textContent='AI处理中 '+Math.round((current/total)*100)+'%...';
+}
+}
+});
+
+processedUrl=URL.createObjectURL(result);
+pb.style.width='100%';
+pt.textContent='处理完成!';
+
+setTimeout(()=>{
+document.getElementById('processing-section').style.display='none';
+document.getElementById('result-section').style.display='block';
+document.getElementById('preview-original').src=originalSrc;
+renderPreview();
+},300);
+
+}catch(err){
+console.error(err);
+pt.textContent='处理失败，请刷新重试';
+}
+}
+
+// ===== 渲染预览 =====
+function renderPreview(){
+if(!processedUrl)return;
+const canvas=document.getElementById('preview-canvas');
+const ctx=canvas.getContext('2d');
+canvas.width=selSize.wp;
+canvas.height=selSize.hp;
+
+ctx.fillStyle=selColor.color;
+ctx.fillRect(0,0,selSize.wp,selSize.hp);
+
+const img=new Image();
+img.onload=()=>{
+const scale=Math.max(selSize.wp/img.width,selSize.hp/img.height);
+const sw=selSize.wp/scale, sh=selSize.hp/scale;
+const sx=(img.width-sw)/2, sy=(img.height-sh)/2*0.8;
+ctx.drawImage(img,sx,sy,sw,sh,0,0,selSize.wp,selSize.hp);
+};
+img.src=processedUrl;
+}
+
+// ===== 下载 =====
+function downloadPhoto(){
+const canvas=document.getElementById('preview-canvas');
+const link=document.createElement('a');
+link.download=`证件照_${selSize.name}_${selColor.name}.png`;
+
+// 免费版加水印
+const tmp=document.createElement('canvas');
+tmp.width=canvas.width;tmp.height=canvas.height;
+const ctx=tmp.getContext('2d');
+ctx.drawImage(canvas,0,0);
+ctx.fillStyle='rgba(255,255,255,0.5)';
+ctx.fillRect(0,canvas.height-26,canvas.width,26);
+ctx.fillStyle='#999';ctx.font='12px sans-serif';ctx.textAlign='center';
+ctx.fillText('免费证件照工具 idphoto',canvas.width/2,canvas.height-8);
+link.href=tmp.toDataURL('image/png',0.92);
+link.click();
+}
+
+// ===== 打印 =====
+function printPhoto(){
+const canvas=document.getElementById('preview-canvas');
+const pw=1800,ph=1200;
+const pc=document.createElement('canvas');pc.width=pw;pc.height=ph;
+const ctx=pc.getContext('2d');
+ctx.fillStyle='#fff';ctx.fillRect(0,0,pw,ph);
+const cols=Math.floor(pw/canvas.width),rows=Math.floor(ph/canvas.height);
+const gx=(pw-cols*canvas.width)/(cols+1),gy=(ph-rows*canvas.height)/(rows+1);
+for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+ctx.drawImage(canvas,gx+c*(canvas.width+gx),gy+r*(canvas.height+gy),canvas.width,canvas.height);
+}
+const w=window.open('','_blank');
+w.document.write(`<html><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#eee"><img src="${pc.toDataURL()}" style="max-width:100%;max-height:100vh"/><script>setTimeout(()=>print(),500)<\/script></body></html>`);
+}
+
+// ===== 重置 =====
+function resetTool(){
+document.getElementById('upload-section').style.display='block';
+document.getElementById('processing-section').style.display='none';
+document.getElementById('result-section').style.display='none';
+processedUrl=null;originalSrc=null;
+fileInput.value='';
+}
+</script>
+</body>
+</html>
