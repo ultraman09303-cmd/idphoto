@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>年龄计算器 - 在线精确计算年龄 | 出生至今多少天</title>
+<meta name="description" content="免费在线年龄计算器，输入出生日期精确计算年龄到天数。计算距离下次生日还有几天、已活多少天、多少小时。"/>
+<meta name="keywords" content="年龄计算器,计算年龄,出生日期,活了多少天,下次生日,年龄计算"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"年龄计算器","applicationCategory":"UtilityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 0}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#2563eb}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#fdf4ff,#faf5ff)}
+.hero h2{font-size:26px;margin-bottom:10px}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px}
+label{display:block;font-size:14px;color:#64748b;margin-bottom:4px;margin-top:12px}
+input[type=date]{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:16px;outline:none}
+input:focus{border-color:#2563eb}
+.btn{display:block;width:100%;background:#2563eb;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;cursor:pointer;margin-top:16px}
+.btn:hover{background:#1d4ed8}
+.result{display:none;margin-top:20px}
+.big-num{text-align:center;padding:20px;background:linear-gradient(135deg,#eff6ff,#f0f9ff);border-radius:12px;margin-bottom:16px}
+.big-num .num{font-size:52px;font-weight:700;color:#2563eb}
+.big-num .unit{font-size:18px;color:#64748b}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.grid-item{background:#f8fafc;border-radius:8px;padding:14px;text-align:center}
+.grid-item .val{font-size:24px;font-weight:600;color:#1e293b}
+.grid-item .lbl{font-size:13px;color:#64748b;margin-top:4px}
+.birthday-card{text-align:center;padding:20px;background:linear-gradient(135deg,#fefce8,#fef9c3);border-radius:12px;margin-top:16px}
+.birthday-card .days{font-size:40px;font-weight:700;color:#92400e}
+.zodiac{display:flex;align-items:center;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;margin-top:12px}
+.zodiac .emoji{font-size:32px}
+.zodiac .info{font-size:14px}
+.zodiac .info strong{display:block;font-size:16px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;color:#2563eb;text-decoration:none}
+.seo{padding:28px 0}
+.seo h2{font-size:20px;margin-bottom:14px}
+.seo p{margin-bottom:10px;color:#64748b;font-size:14px}
+.faq{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.faq h4{font-size:14px;margin-bottom:4px}
+.faq p{font-size:13px;color:#64748b}
+footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container"><h2>年龄计算器</h2><p>精确计算你的年龄、已活天数、距离下次生日还有几天</p></div></section>
+<main class="container">
+<div class="card">
+<h3>输入出生日期</h3>
+<label>出生日期</label>
+<input type="date" id="birthdate"/>
+<button class="btn" onclick="calcAge()">计算年龄</button>
+</div>
+
+<div id="result" class="result">
+<div class="big-num">
+<div class="num" id="age-years">--</div>
+<div class="unit">岁</div>
+</div>
+
+<div class="grid">
+<div class="grid-item"><div class="val" id="age-detail"></div><div class="lbl">精确年龄</div></div>
+<div class="grid-item"><div class="val" id="total-days"></div><div class="lbl">已活天数</div></div>
+<div class="grid-item"><div class="val" id="total-hours"></div><div class="lbl">已活小时</div></div>
+<div class="grid-item"><div class="val" id="total-minutes"></div><div class="lbl">已活分钟</div></div>
+<div class="grid-item"><div class="val" id="total-heartbeats"></div><div class="lbl">心跳次数(约)</div></div>
+<div class="grid-item"><div class="val" id="weekdays"></div><div class="lbl">已过的周一</div></div>
+</div>
+
+<div class="birthday-card">
+<div style="font-size:14px;color:#92400e">距离下次生日还有</div>
+<div class="days" id="next-birthday">--</div>
+<div style="font-size:14px;color:#92400e" id="next-birthday-date"></div>
+</div>
+
+<div id="zodiac-info"></div>
+</div>
+
+<section class="seo">
+<h2>年龄计算器说明</h2>
+<p>本工具根据出生日期精确计算年龄，精确到天、小时、分钟。同时计算已活过的总天数、心跳次数等趣味数据，以及星座和生肖信息。</p>
+<h2>常见问题</h2>
+<div class="faq"><h4>Q: 年龄怎么算才准确?</h4><p>周岁 = 当前年份 - 出生年份，如果当年生日还没到则减1。本工具采用精确计算。</p></div>
+<div class="faq"><h4>Q: 为什么有虚岁和周岁之分?</h4><p>虚岁是中国传统计算方式，出生即为1岁，每过一个农历新年加1岁。周岁是国际通用标准。</p></div>
+<div class="faq"><h4>Q: 心跳次数是怎么估算的?</h4><p>按平均心率72次/分钟估算，实际因人而异。</p></div>
+</section>
+<h3>更多工具</h3>
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><div class="container"><p>免费在线工具箱 · 实用工具永久免费</p></div></footer>
+
+<script>
+const ZODIAC=[
+{m:1,d:20,name:'水瓶座',emoji:'♒'},{m:2,d:19,name:'双鱼座',emoji:'♓'},
+{m:3,d:21,name:'白羊座',emoji:'♈'},{m:4,d:20,name:'金牛座',emoji:'♉'},
+{m:5,d:21,name:'双子座',emoji:'♊'},{m:6,d:22,name:'巨蟹座',emoji:'♋'},
+{m:7,d:23,name:'狮子座',emoji:'♌'},{m:8,d:23,name:'处女座',emoji:'♍'},
+{m:9,d:23,name:'天秤座',emoji:'♎'},{m:10,d:24,name:'天蝎座',emoji:'♏'},
+{m:11,d:22,name:'射手座',emoji:'♐'},{m:12,d:22,name:'摩羯座',emoji:'♑'}
+];
+const SHENGXIAO=['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+
+function getZodiac(m,d){
+for(let i=ZODIAC.length-1;i>=0;i--){if(m>ZODIAC[i].m||(m===ZODIAC[i].m&&d>=ZODIAC[i].d))return ZODIAC[i]}
+return ZODIAC[11]
+}
+
+function calcAge(){
+const bd=new Date(document.getElementById('birthdate').value);
+if(isNaN(bd.getTime())){alert('请选择出生日期');return}
+const now=new Date();
+if(bd>now){alert('出生日期不能在未来');return}
+
+let years=now.getFullYear()-bd.getFullYear();
+let months=now.getMonth()-bd.getMonth();
+let days=now.getDate()-bd.getDate();
+if(days<0){months--;const prev=new Date(now.getFullYear(),now.getMonth(),0);days+=prev.getDate()}
+if(months<0){years--;months+=12}
+
+document.getElementById('age-years').textContent=years;
+document.getElementById('age-detail').textContent=`${years}岁${months}个月${days}天`;
+
+const totalMs=now-bd;
+const totalDays=Math.floor(totalMs/86400000);
+const totalHours=Math.floor(totalMs/3600000);
+const totalMinutes=Math.floor(totalMs/60000);
+const heartbeats=Math.floor(totalMinutes*72);
+
+document.getElementById('total-days').textContent=totalDays.toLocaleString();
+document.getElementById('total-hours').textContent=totalHours.toLocaleString();
+document.getElementById('total-minutes').textContent=totalMinutes.toLocaleString();
+document.getElementById('total-heartbeats').textContent=(heartbeats/10000).toFixed(0)+'万';
+document.getElementById('weekdays').textContent=Math.floor(totalDays/7).toLocaleString();
+
+// Next birthday
+const thisYearBday=new Date(now.getFullYear(),bd.getMonth(),bd.getDate());
+let nextBday=thisYearBday;
+if(thisYearBday<=now){nextBday=new Date(now.getFullYear()+1,bd.getMonth(),bd.getDate())}
+const daysUntil=Math.ceil((nextBday-now)/86400000);
+document.getElementById('next-birthday').textContent=daysUntil+' 天';
+document.getElementById('next-birthday-date').textContent=nextBday.toLocaleDateString('zh-CN');
+
+// Zodiac
+const z=getZodiac(bd.getMonth()+1,bd.getDate());
+const sx=SHENGXIAO[(bd.getFullYear()-1900)%12];
+document.getElementById('zodiac-info').innerHTML=`
+<div class="zodiac"><div class="emoji">${z.emoji}</div><div class="info"><strong>${z.name}</strong>生肖：${sx}年</div></div>`;
+
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>

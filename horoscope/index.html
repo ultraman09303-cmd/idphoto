@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>星座运势查询 - 今日运势 | 12星座性格配对</title>
+<meta name="description" content="免费查询12星座今日运势、性格特点和配对分析。白羊座到双鱼座全面解读，每日更新运势指引。"/>
+<meta name="keywords" content="星座运势,今日运势,12星座,星座配对,星座性格,白羊座,天蝎座,射手座"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#0c1445;color:#e0e7ff;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:rgba(12,20,69,.9);border-bottom:1px solid #1e3a8a;padding:14px 0;position:sticky;top:0;z-index:100}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#93c5fd}
+.hero{text-align:center;padding:36px 16px;background:radial-gradient(ellipse at center,#1e1b4b,#0c1445)}
+.hero h2{font-size:28px;margin-bottom:8px}
+.hero p{color:#7c8cc4;font-size:15px}
+.card{background:rgba(30,27,75,.6);border:1px solid #1e3a8a;border-radius:16px;padding:24px;margin:20px 0}
+.card h3{font-size:17px;color:#93c5fd;margin-bottom:14px}
+.zodiac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px}
+.zodiac-btn{background:rgba(30,58,138,.3);border:1px solid #1e3a8a;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.zodiac-btn:hover,.zodiac-btn.active{background:rgba(147,197,253,.2);border-color:#93c5fd;transform:translateY(-2px)}
+.zodiac-btn .icon{font-size:28px}
+.zodiac-btn .name{font-size:13px;color:#93c5fd;margin-top:4px}
+.zodiac-btn .date{font-size:11px;color:#7c8cc4}
+.result-area{display:none}
+.stars{display:flex;gap:4px;margin:8px 0}
+.stars .star{font-size:20px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.info-item{background:rgba(12,20,69,.4);padding:12px;border-radius:8px}
+.info-item .label{font-size:12px;color:#7c8cc4}
+.info-item .value{font-size:15px;color:#e0e7ff;margin-top:4px}
+.fortune-section{margin:16px 0}
+.fortune-section h4{color:#93c5fd;font-size:15px;margin-bottom:8px}
+.fortune-section p{font-size:14px;color:#b8c4e8}
+.match-card{display:flex;align-items:center;gap:16px;padding:14px;background:rgba(30,58,138,.2);border-radius:12px;margin:10px 0}
+.match-card .emoji{font-size:32px}
+.match-card .info{flex:1}
+.match-card .info strong{color:#93c5fd}
+.match-card .info p{font-size:13px;color:#7c8cc4;margin-top:2px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:rgba(147,197,253,.1);border:1px solid #1e3a8a;border-radius:20px;font-size:13px;color:#93c5fd;text-decoration:none}
+footer{text-align:center;padding:24px 0;color:#3b4a8a;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../" style="color:#93c5fd"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container">
+<h2>✨ 星座运势查询</h2><p>选择你的星座，查看今日运势和性格解读</p>
+</div></section>
+<main class="container">
+<div class="card">
+<h3>选择你的星座</h3>
+<div class="zodiac-grid" id="zodiac-grid"></div>
+</div>
+
+<div class="result-area" id="result">
+<div class="card" id="basic-info"></div>
+<div class="card" id="today-fortune"></div>
+<div class="card" id="personality"></div>
+<div class="card" id="match-info"></div>
+</div>
+
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../age/">年龄计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+</div>
+</main>
+<footer><p>星座运势仅供娱乐参考 · 免费在线工具箱</p></footer>
+
+<script>
+const SIGNS=[
+{name:'白羊座',emoji:'♈',element:'火',date:'3.21-4.19',planet:'火星',trait:'热情、勇敢、直率'},
+{name:'金牛座',emoji:'♉',element:'土',date:'4.20-5.20',planet:'金星',trait:'稳重、务实、享受'},
+{name:'双子座',emoji:'♊',element:'风',date:'5.21-6.21',planet:'水星',trait:'聪明、好奇、善变'},
+{name:'巨蟹座',emoji:'♋',element:'水',date:'6.22-7.22',planet:'月亮',trait:'温柔、顾家、敏感'},
+{name:'狮子座',emoji:'♌',element:'火',date:'7.23-8.22',planet:'太阳',trait:'自信、大方、领导力'},
+{name:'处女座',emoji:'♍',element:'土',date:'8.23-9.22',planet:'水星',trait:'细心、完美主义、务实'},
+{name:'天秤座',emoji:'♎',element:'风',date:'9.23-10.23',planet:'金星',trait:'优雅、和平、社交'},
+{name:'天蝎座',emoji:'♏',element:'水',date:'10.24-11.22',planet:'冥王星',trait:'神秘、洞察力、执着'},
+{name:'射手座',emoji:'♐',element:'火',date:'11.23-12.21',planet:'木星',trait:'乐观、自由、探索'},
+{name:'摩羯座',emoji:'♑',element:'土',date:'12.22-1.19',planet:'土星',trait:'坚韧、有野心、自律'},
+{name:'水瓶座',emoji:'♒',element:'风',date:'1.20-2.18',planet:'天王星',trait:'独立、创新、博爱'},
+{name:'双鱼座',emoji:'♓',element:'水',date:'2.19-3.20',planet:'海王星',trait:'浪漫、直觉、同理心'},
+];
+
+const FORTUNES={
+love:['今天桃花运旺盛，可能会收到意外的告白','感情中有小惊喜，注意身边人的暗示','适合主动出击，表达内心感受','感情稳定，适合和伴侣深入交流','单身者有机会遇到有趣的人','今天适合独处，整理感情思绪','旧情可能复燃，三思而后行','恋爱中的人会有甜蜜时刻','可能因为小事产生误会，及时沟通','今天魅力四射，吸引异性目光','感情中有新的可能性出现','浪漫的一天，适合表白或约会'],
+career:['工作上有新机会，大胆抓住','适合处理积压的任务','团队合作顺利，效率翻倍','可能面临挑战，但你能应对自如','创意灵感爆发的一天','适合学习新技能','贵人运旺，可能得到领导赏识','适合做长期规划','注意细节，避免粗心犯错','谈判运佳，适合谈合作','工作效率高，适合攻坚','适合跳出舒适区尝试新事物'],
+money:['财运平稳，不宜大额消费','可能有意外收入','投资需谨慎，保守为主','适合制定理财计划','花钱欲望强，注意控制','购物运佳，能淘到好东西','偏财运不错','适合存钱，不宜借贷','可能有意外支出','正财运旺，努力有回报','适合研究新的赚钱方式','理性消费，避免冲动购物'],
+health:['精力充沛，适合运动','注意休息，不要过度劳累','适合做体检或健康检查','心情愉快，身心状态好','注意饮食健康','适合户外活动','睡眠质量可能下降，注意作息','身体状态良好','注意颈椎和腰椎','适合做瑜伽或冥想','多喝水，注意补水','适合调整生活作息'],
+};
+
+const MATCHES={
+'白羊座':['狮子座','射手座','双子座'],'金牛座':['处女座','摩羯座','巨蟹座'],
+'双子座':['天秤座','水瓶座','白羊座'],'巨蟹座':['天蝎座','双鱼座','金牛座'],
+'狮子座':['白羊座','射手座','天秤座'],'处女座':['金牛座','摩羯座','天蝎座'],
+'天秤座':['双子座','水瓶座','狮子座'],'天蝎座':['巨蟹座','双鱼座','处女座'],
+'射手座':['白羊座','狮子座','水瓶座'],'摩羯座':['金牛座','处女座','双鱼座'],
+'水瓶座':['双子座','天秤座','射手座'],'双鱼座':['巨蟹座','天蝎座','摩羯座'],
+};
+
+const grid=document.getElementById('zodiac-grid');
+SIGNS.forEach((s,i)=>{
+const btn=document.createElement('div');
+btn.className='zodiac-btn';
+btn.innerHTML=`<div class="icon">${s.emoji}</div><div class="name">${s.name}</div><div class="date">${s.date}</div>`;
+btn.onclick=()=>{document.querySelectorAll('.zodiac-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showSign(i)};
+grid.appendChild(btn);
+});
+
+function seedRandom(seed){
+let x=Math.sin(seed)*10000;
+return x-Math.floor(x);
+}
+
+function getTodaySeed(name){
+const d=new Date();
+return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()+name.charCodeAt(0);
+}
+
+function showSign(idx){
+const s=SIGNS[idx];
+const seed=getTodaySeed(s.name);
+const r=(cat)=>Math.floor(seedRandom(seed+cat.charCodeAt(0))*12);
+const loveR=r('L')+1,careerR=r('C')+1,moneyR=r('M')+1,healthR=r('H')+1;
+const overall=Math.round((loveR+careerR+moneyR+healthR)/4);
+
+function starHTML(n){return Array.from({length:5},(_,i)=>`<span class="star">${i<n?'⭐':'☆'}</span>`).join('')}
+
+document.getElementById('basic-info').innerHTML=`
+<h3>${s.emoji} ${s.name}</h3>
+<div class="info-grid">
+<div class="info-item"><div class="label">日期</div><div class="value">${s.date}</div></div>
+<div class="info-item"><div class="label">元素</div><div class="value">${s.element}</div></div>
+<div class="info-item"><div class="label">守护星</div><div class="value">${s.planet}</div></div>
+<div class="info-item"><div class="label">今日综合</div><div class="value">${starHTML(overall)}</div></div>
+</div>`;
+
+const fIdx=Math.floor(seed*100)%12;
+document.getElementById('today-fortune').innerHTML=`
+<h3>今日运势</h3>
+<div class="fortune-section"><h4>💕 爱情 ${starHTML(loveR)}</h4><p>${FORTUNES.love[fIdx]}</p></div>
+<div class="fortune-section"><h4>💼 事业 ${starHTML(careerR)}</h4><p>${FORTUNES.career[fIdx]}</p></div>
+<div class="fortune-section"><h4>💰 财运 ${starHTML(moneyR)}</h4><p>${FORTUNES.money[fIdx]}</p></div>
+<div class="fortune-section"><h4>🏥 健康 ${starHTML(healthR)}</h4><p>${FORTUNES.health[fIdx]}</p></div>
+<div style="font-size:12px;color:#7c8cc4;margin-top:12px">幸运数字：${Math.floor(seedRandom(seed+99)*9)+1} · 幸运颜色：${['红色','蓝色','绿色','紫色','橙色','粉色','白色','金色'][Math.floor(seedRandom(seed+88)*8)]}</div>`;
+
+document.getElementById('personality').innerHTML=`
+<h3>性格特点</h3>
+<p style="font-size:14px;color:#b8c4e8">${s.trait}</p>
+<p style="font-size:14px;color:#b8c4e8;margin-top:8px">${getPersonalityText(s.name)}</p>`;
+
+const matches=MATCHES[s.name];
+document.getElementById('match-info').innerHTML=`
+<h3>最佳配对</h3>
+${matches.map(m=>{
+const ms=SIGNS.find(x=>x.name===m);
+return `<div class="match-card"><div class="emoji">${ms.emoji}</div><div class="info"><strong>${m}</strong><p>${getMatchText(s.name,m)}</p></div></div>`;
+}).join('')}`;
+
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function getPersonalityText(name){
+const texts={
+'白羊座':'白羊座是十二星座的开路先锋，天生具有领导力和冒险精神。你们热情似火，行动力强，但有时会显得冲动。在困难面前从不退缩，是最勇敢的战士。',
+'金牛座':'金牛座是最踏实可靠的星座，对美和舒适有着天生的追求。你们忠诚、有耐心，是朋友和伴侣的最佳选择。但有时过于固执，需要学会变通。',
+'双子座':'双子座是天生的交际花，聪明机智，口才出众。你们对世界充满好奇心，学习能力超强。但有时兴趣太广泛，需要学会专注。',
+'巨蟹座':'巨蟹座是最有家庭观念的星座，温柔体贴，重视情感。你们记忆力超强，对朋友和家人无比忠诚。但有时过于敏感，需要学会保护自己。',
+'狮子座':'狮子座是天生的王者，自信大方，光芒四射。你们慷慨、热情，总能成为人群中的焦点。但有时需要学会倾听他人的声音。',
+'处女座':'处女座是最追求完美的星座，做事认真细致，分析能力超强。你们务实、可靠，是最值得信赖的伙伴。但有时对自己和他人过于苛刻。',
+'天秤座':'天秤座是最优雅的星座，追求和谐与平衡。你们社交能力出众，审美品味一流。但有时过于纠结，需要学会果断做决定。',
+'天蝎座':'天蝎座是最有深度的星座，洞察力极强，直觉敏锐。你们忠诚、有魅力，一旦认定就全力以赴。但有时需要学会放下和原谅。',
+'射手座':'射手座是最自由的星座，乐观开朗，热爱冒险。你们幽默、真诚，总能给身边的人带来快乐。但有时需要学会承担责任。',
+'摩羯座':'摩羯座是最有毅力的星座，目标明确，脚踏实地。你们可靠、有耐心，是最值得信赖的合作伙伴。但有时需要学会放松享受生活。',
+'水瓶座':'水瓶座是最独立的星座，思维超前，创意无限。你们博爱、公正，总是站在时代前沿。但有时显得冷漠，需要表达内心的情感。',
+'双鱼座':'双鱼座是最有同理心的星座，直觉敏锐，想象力丰富。你们温柔、浪漫，总能理解他人的感受。但有时需要学会保护自己的能量。',
+};
+return texts[name]||'';
+}
+
+function getMatchText(a,b){
+const pairs={
+'白羊座-狮子座':'两个火象星座相遇，激情四射，互相欣赏对方的勇气和自信。',
+'白羊座-射手座':'充满冒险精神的组合，一起探索世界，永远不会无聊。',
+'白羊座-双子座':'活泼有趣的搭配，思维碰撞出精彩的火花。',
+'金牛座-处女座':'两个土象星座的完美组合，踏实稳定，细水长流。',
+'金牛座-摩羯座':'最稳固的配对之一，共同追求安全感和美好生活。',
+'金牛座-巨蟹座':'温馨甜蜜的组合，家的感觉让彼此安心。',
+'双子座-天秤座':'风象星座的最佳拍档，沟通无障碍，互相理解。',
+'双子座-水瓶座':'充满创意和新鲜感的组合，永远不会感到无聊。',
+'巨蟹座-天蝎座':'水象星座的深度连接，情感共鸣强烈。',
+'巨蟹座-双鱼座':'最浪漫的配对，彼此理解对方敏感的内心。',
+'狮子座-射手座':'火象星座的热情组合，一起发光发热。',
+'狮子座-天秤座':'优雅与力量的完美结合，互相欣赏。',
+'处女座-摩羯座':'务实的完美主义者组合，互相扶持。',
+'处女座-天蝎座':'深度与细节的结合，互相吸引。',
+'天秤座-水瓶座':'优雅与独立的风象组合，精神共鸣。',
+'天蝎座-双鱼座':'最深情的配对，灵魂层面的连接。',
+'射手座-水瓶座':'自由与创新的组合，一起追求理想。',
+'摩羯座-双鱼座':'互补的配对，现实与浪漫的平衡。',
+};
+return pairs[a+'-'+b]||pairs[b+'-'+a]||'星座之间有着奇妙的缘分，互相吸引又互相成长。';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>塔罗牌在线占卜 - 免费三牌阵占卜 | 爱情事业财运</title>
+<meta name="description" content="免费在线塔罗牌占卜，经典三牌阵解读过去现在未来。涵盖爱情、事业、财运等人生问题，每日一卦指引方向。"/>
+<meta name="keywords" content="塔罗牌在线占卜,免费塔罗牌,三牌阵,塔罗牌解读,爱情占卜,事业占卜,每日塔罗"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#0f0a1e;color:#e2d9f3;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:rgba(15,10,30,.9);border-bottom:1px solid #2d1f4e;padding:14px 0;position:sticky;top:0;z-index:100}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#c4a0ff}
+.hero{text-align:center;padding:40px 16px;background:radial-gradient(ellipse at center,#1a1040 0%,#0f0a1e 70%)}
+.hero h2{font-size:28px;color:#e2d9f3;margin-bottom:8px}
+.hero p{color:#8b7aaa;font-size:15px}
+.card{background:rgba(30,20,60,.6);border:1px solid #2d1f4e;border-radius:16px;padding:24px;margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px;color:#c4a0ff}
+.category-btns{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.category-btns button{padding:10px 20px;border:1px solid #2d1f4e;border-radius:20px;background:transparent;color:#e2d9f3;font-size:14px;cursor:pointer;transition:all .2s}
+.category-btns button:hover,.category-btns button.active{background:#c4a0ff;color:#0f0a1e;border-color:#c4a0ff}
+.draw-area{text-align:center;padding:30px 0}
+.cards-display{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:20px 0}
+.tarot-card{width:120px;height:180px;border-radius:12px;cursor:pointer;transition:all .5s;position:relative;perspective:600px}
+.tarot-card .front,.tarot-card .back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;transition:transform .6s;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.tarot-card .front{background:linear-gradient(135deg,#2d1f4e,#4a2d8a);border:2px solid #c4a0ff;transform:rotateY(0)}
+.tarot-card .front .star{font-size:40px}
+.tarot-card .front .label{font-size:12px;color:#8b7aaa;margin-top:6px}
+.tarot-card .back{background:linear-gradient(135deg,#1a1040,#2d1f4e);border:2px solid #c4a0ff;transform:rotateY(180deg);padding:10px;text-align:center}
+.tarot-card .back .emoji{font-size:36px}
+.tarot-card .back .name{font-size:13px;color:#c4a0ff;margin-top:4px}
+.tarot-card.flipped .front{transform:rotateY(180deg)}
+.tarot-card.flipped .back{transform:rotateY(0)}
+.tarot-card:hover{transform:translateY(-6px);box-shadow:0 8px 24px rgba(196,160,255,.2)}
+.tarot-card.flipped:hover{transform:translateY(-6px)}
+.draw-btn{background:linear-gradient(135deg,#c4a0ff,#8b5cf6);color:#0f0a1e;border:none;padding:14px 40px;border-radius:30px;font-size:17px;cursor:pointer;font-weight:600;transition:all .3s;margin:16px 0}
+.draw-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(196,160,255,.4)}
+.draw-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result-section{display:none;margin-top:20px}
+.result-card{text-align:left;padding:16px;background:rgba(15,10,30,.4);border:1px solid #2d1f4e;border-radius:12px;margin:12px 0}
+.result-card h4{color:#c4a0ff;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.result-card p{font-size:14px;color:#b8a8d6}
+.keywords{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.keywords span{padding:4px 10px;background:rgba(196,160,255,.1);border:1px solid #2d1f4e;border-radius:12px;font-size:12px;color:#c4a0ff}
+.overall{text-align:center;padding:20px;background:linear-gradient(135deg,rgba(196,160,255,.1),rgba(139,92,246,.1));border-radius:12px;margin-top:16px}
+.overall h3{color:#c4a0ff;margin-bottom:8px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:rgba(196,160,255,.1);border:1px solid #2d1f4e;border-radius:20px;font-size:13px;color:#c4a0ff;text-decoration:none}
+footer{text-align:center;padding:24px 0;color:#4a3670;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../" style="color:#c4a0ff"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container">
+<h2>🔮 塔罗牌在线占卜</h2><p>静下心来，思考你的问题，然后翻牌</p>
+</div></section>
+<main class="container">
+<div class="card">
+<h3>选择占卜方向</h3>
+<div class="category-btns" id="categories">
+<button class="active" data-cat="love">💕 爱情</button>
+<button data-cat="career">💼 事业</button>
+<button data-cat="money">💰 财运</button>
+<button data-cat="general">🌟 综合</button>
+</div>
+</div>
+
+<div class="card">
+<h3>经典三牌阵 — 过去 · 现在 · 未来</h3>
+<p style="font-size:14px;color:#8b7aaa;margin-bottom:12px">心中默念你的问题，然后点击"开始占卜"</p>
+<div class="draw-area">
+<div class="cards-display" id="cards-display">
+<div class="tarot-card" id="card0"><div class="front"><div class="star">✨</div><div class="label">过去</div></div><div class="back"><div class="emoji" id="emoji0"></div><div class="name" id="name0"></div></div></div>
+<div class="tarot-card" id="card1"><div class="front"><div class="star">✨</div><div class="label">现在</div></div><div class="back"><div class="emoji" id="emoji1"></div><div class="name" id="name1"></div></div></div>
+<div class="tarot-card" id="card2"><div class="front"><div class="star">✨</div><div class="label">未来</div></div><div class="back"><div class="emoji" id="emoji2"></div><div class="name" id="name2"></div></div></div>
+</div>
+<button class="draw-btn" id="draw-btn" onclick="drawCards()">开始占卜 🔮</button>
+</div>
+</div>
+
+<div class="result-section" id="result-section">
+<div class="card" id="result-cards"></div>
+<div class="card overall" id="overall-reading"></div>
+<div class="card" style="text-align:center">
+<button class="draw-btn" onclick="resetDraw()">再占一次</button>
+</div>
+</div>
+
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../age/">年龄计算器</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><p>塔罗牌占卜仅供娱乐参考 · 免费在线工具箱</p></footer>
+
+<script>
+const TAROT=[
+{name:'愚者',emoji:'🃏',upright:'新的开始，冒险精神，天真无邪',reversed:'鲁莽，不计后果，犹豫不决',keywords:['新开始','冒险','自由']},
+{name:'魔术师',emoji:'🎩',upright:'创造力，意志力，技能',reversed:'欺骗，能力不足，浪费才华',keywords:['创造','行动','自信']},
+{name:'女祭司',emoji:'🌙',upright:'直觉，潜意识，内在智慧',reversed:'忽视直觉，表面化，信息隐藏',keywords:['直觉','神秘','内在']},
+{name:'女皇',emoji:'👑',upright:'丰收，母爱，美丽',reversed:'过度依赖，创意枯竭',keywords:['丰盛','关爱','美']},
+{name:'皇帝',emoji:'🏛️',upright:'权威，结构，掌控力',reversed:'独裁，僵化，过度控制',keywords:['权力','稳定','领导']},
+{name:'教皇',emoji:'📿',upright:'传统，信仰，指导',reversed:'叛逆，非传统，打破常规',keywords:['信仰','传统','指引']},
+{name:'恋人',emoji:'💕',upright:'爱情，选择，和谐',reversed:'不和谐，价值观冲突，错误选择',keywords:['爱情','选择','和谐']},
+{name:'战车',emoji:'🏇',upright:'胜利，意志力，决心',reversed:'失控，攻击性，方向迷失',keywords:['胜利','决心','前进']},
+{name:'力量',emoji:'🦁',upright:'内在力量，勇气，耐心',reversed:'自我怀疑，虚弱，恐惧',keywords:['勇气','力量','耐心']},
+{name:'隐士',emoji:'🏔️',upright:'内省，孤独，寻找真理',reversed:'孤立，固执，逃避现实',keywords:['沉思','独处','智慧']},
+{name:'命运之轮',emoji:'🎡',upright:'命运，转折，好运',reversed:'坏运气，抗拒变化，失控',keywords:['命运','转变','机会']},
+{name:'正义',emoji:'⚖️',upright:'公正，真相，因果',reversed:'不公正，不负责任，逃避',keywords:['公正','平衡','真相']},
+{name:'倒吊人',emoji:'🔄',upright:'牺牲，新视角，等待',reversed:'拖延，无谓牺牲，自我受害',keywords:['等待','换个角度','放手']},
+{name:'死神',emoji:'🦋',upright:'结束，转变，新生',reversed:'抗拒变化，停滞，恐惧结束',keywords:['转变','结束','重生']},
+{name:'节制',emoji:'🏺',upright:'平衡，耐心，适度',reversed:'失衡，过度，缺乏耐心',keywords:['平衡','和谐','调和']},
+{name:'恶魔',emoji:'😈',upright:'束缚，欲望，物质主义',reversed:'释放，打破束缚，重获自由',keywords:['诱惑','束缚','觉醒']},
+{name:'塔',emoji:'🗼',upright:'突变，破坏，觉醒',reversed:'逃避灾难，恐惧变化',keywords:['突变','破坏','启示']},
+{name:'星星',emoji:'⭐',upright:'希望，灵感，平静',reversed:'绝望，失去信心',keywords:['希望','灵感','治愈']},
+{name:'月亮',emoji:'🌙',upright:'幻觉，恐惧，潜意识',reversed:'释放恐惧，走出迷茫',keywords:['直觉','迷惑','潜意识']},
+{name:'太阳',emoji:'☀️',upright:'快乐，成功，活力',reversed:'暂时的挫折，过度乐观',keywords:['快乐','成功','光明']},
+{name:'审判',emoji:'📯',upright:'觉醒，重生，反思',reversed:'自我怀疑，拒绝成长',keywords:['觉醒','审视','重生']},
+{name:'世界',emoji:'🌍',upright:'完成，整合，成就',reversed:'未完成，缺乏收尾',keywords:['完成','圆满','成就']},
+];
+
+let selectedCat='love';
+let drawnCards=[];
+
+document.getElementById('categories').addEventListener('click',e=>{
+if(e.target.tagName==='BUTTON'){
+document.querySelectorAll('#categories button').forEach(b=>b.classList.remove('active'));
+e.target.classList.add('active');
+selectedCat=e.target.dataset.cat;
+}
+});
+
+function drawCards(){
+const btn=document.getElementById('draw-btn');
+btn.disabled=true;
+drawnCards=[];
+// Shuffle and pick 3
+const deck=[...TAROT].sort(()=>Math.random()-.5);
+const positions=['upright','reversed','upright'];
+for(let i=0;i<3;i++){
+const card=deck[i];
+const reversed=Math.random()>.6;
+drawnCards.push({...card,reversed,position:i});
+}
+
+// Flip animation
+[0,1,2].forEach((i,idx)=>{
+setTimeout(()=>{
+const el=document.getElementById('card'+i);
+el.classList.add('flipped');
+document.getElementById('emoji'+i).textContent=drawnCards[i].emoji;
+document.getElementById('name'+i).textContent=drawnCards[i].name+(drawnCards[i].reversed?' (逆位)':'');
+},400*(idx+1));
+});
+
+setTimeout(showResult,2000);
+}
+
+function showResult(){
+const labels=['过去','现在','未来'];
+const catNames={love:'爱情',career:'事业',money:'财运',general:'综合'};
+let html='<h3>塔罗牌解读</h3>';
+drawnCards.forEach((c,i)=>{
+const meaning=c.reversed?c.reversed:c.upright;
+const posLabel=c.reversed?'逆位':'正位';
+html+=`<div class="result-card">
+<h4>${labels[i]}：${c.emoji} ${c.name}（${posLabel}）</h4>
+<p><strong>含义：</strong>${meaning}</p>
+<p><strong>${catNames[selectedCat]}解读：</strong>${getReading(c,selectedCat)}</p>
+<div class="keywords">${c.keywords.map(k=>'<span>'+k+'</span>').join('')}</div>
+</div>`;
+});
+
+html+=`<div class="overall">
+<h3>综合解读</h3>
+<p>${getOverallReading(drawnCards,selectedCat)}</p>
+</div>`;
+
+document.getElementById('result-cards').innerHTML=html;
+document.getElementById('result-section').style.display='block';
+document.getElementById('result-section').scrollIntoView({behavior:'smooth'});
+}
+
+function getReading(card,cat){
+const readings={
+love:{
+'愚者':'一段新恋情即将开始，保持开放心态','魔术师':'你有吸引爱情的能力，主动出击','女祭司':'倾听内心的声音，不要急于行动',
+'恋人':'面临重要的感情选择','战车':'在感情中需要更多主动和决心','力量':'用温柔和耐心对待感情问题',
+'命运之轮':'感情运势即将转变','死神':'一段旧感情结束，新的开始','太阳':'感情生活充满阳光和快乐',
+'星星':'对爱情保持希望','月亮':'感情中有需要澄清的误会','世界':'感情即将圆满',
+},
+career:{
+'魔术师':'你拥有成功的所有技能，大胆行动','皇帝':'适合承担领导角色','战车':'事业上有突破性进展',
+'隐士':'需要独处思考职业方向','命运之轮':'事业转机即将到来','塔':'工作环境将有重大变化',
+'星星':'事业前景光明','太阳':'事业上的成功和认可','世界':'项目即将圆满完成',
+},
+money:{
+'女皇':'财运亨通，收入增加','皇帝':'财务需要更有规划','命运之轮':'财运即将好转',
+'恶魔':'注意消费欲望，避免过度消费','星星':'财务前景乐观','太阳':'财运旺盛',
+}
+};
+const fallback=card.upright;
+return (readings[cat]&&readings[cat][card.name])||fallback+'，请结合自身情况思考';
+}
+
+function getOverallReading(cards,cat){
+const catText={love:'爱情',career:'事业',money:'财运',general:'人生'};
+const hasReversed=cards.some(c=>c.reversed);
+const names=cards.map(c=>c.name);
+
+if(names.includes('太阳'))return `太阳牌出现，预示着${catText[cat]}方面将迎来光明和积极的转变。保持乐观，好运就在前方。`;
+if(names.includes('星星'))return `星星牌指引方向，说明当前虽有困难但前景是光明的。保持信念，继续前行。`;
+if(names.includes('塔'))return `塔牌提示可能面临突变，但这往往是通向更好方向的必经之路。接受变化，积极应对。`;
+if(names.includes('世界'))return `世界牌象征圆满，你正在接近一个重要的里程碑。坚持下去，收获就在眼前。`;
+if(names.includes('命运之轮'))return `命运之轮转动，意味着${catText[cat]}方面将迎来重要转变。把握机遇，顺势而为。`;
+
+if(hasReversed)return `三张牌中出现逆位，提示你需要反思当前的做法。换个角度看问题，可能会发现新的解决之道。`;
+return `三张牌组合来看，你在${catText[cat]}方面正处在一个平衡的状态。保持内心的平静，跟随直觉的指引，答案自然会浮现。`;
+}
+
+function resetDraw(){
+[0,1,2].forEach(i=>{document.getElementById('card'+i).classList.remove('flipped')});
+document.getElementById('result-section').style.display='none';
+document.getElementById('draw-btn').disabled=false;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

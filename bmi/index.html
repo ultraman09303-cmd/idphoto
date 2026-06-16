@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BMI计算器 - 在线免费计算身体质量指数 | 标准体重对照表</title>
+<meta name="description" content="免费在线BMI计算器，输入身高体重自动计算身体质量指数(BMI)，对照中国标准判断体重是否正常。附标准体重表和健康建议。"/>
+<meta name="keywords" content="BMI计算器,身体质量指数,标准体重,体重计算,健康体重,BMI计算公式"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"BMI计算器","applicationCategory":"HealthApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 0}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#2563eb}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#ecfdf5,#f0fdf4)}
+.hero h2{font-size:26px;margin-bottom:10px}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px}
+label{display:block;font-size:14px;color:#64748b;margin-bottom:4px;margin-top:12px}
+input[type=number]{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:16px;outline:none}
+input:focus{border-color:#2563eb}
+.btn{display:block;width:100%;background:#2563eb;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;cursor:pointer;margin-top:16px}
+.btn:hover{background:#1d4ed8}
+.result{display:none;margin-top:20px;padding:20px;border-radius:12px;text-align:center}
+.result .bmi-num{font-size:48px;font-weight:700}
+.result .bmi-label{font-size:20px;margin-top:8px}
+.result .bmi-range{font-size:14px;color:#64748b;margin-top:4px}
+.bar-wrap{margin:16px 0;position:relative;height:24px;border-radius:12px;overflow:hidden}
+.bar{display:flex;height:100%}
+.bar span{flex:1}
+.pointer{position:absolute;top:-4px;width:4px;height:32px;background:#1e293b;border-radius:2px;transition:left .5s}
+table{width:100%;border-collapse:collapse;margin:14px 0}
+th,td{padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:14px}
+th{background:#f8fafc;font-weight:600}
+.tips{margin-top:16px;text-align:left}
+.tips li{margin-bottom:8px;font-size:14px;color:#64748b}
+.seo{padding:28px 0}
+.seo h2{font-size:20px;margin-bottom:14px}
+.seo p{margin-bottom:10px;color:#64748b;font-size:14px}
+.faq{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.faq h4{font-size:14px;margin-bottom:4px}
+.faq p{font-size:13px;color:#64748b}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;color:#2563eb;text-decoration:none}
+footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+.gender-btns{display:flex;gap:10px;margin-top:8px}
+.gender-btns button{flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:15px;cursor:pointer}
+.gender-btns button.active{border-color:#2563eb;background:#eff6ff;color:#2563eb}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container"><h2>BMI计算器</h2><p>输入身高体重，计算身体质量指数，了解你的体重是否健康</p></div></section>
+<main class="container">
+<div class="card">
+<h3>输入信息</h3>
+<label>性别</label>
+<div class="gender-btns">
+<button id="male" class="active" onclick="setGender('male')">男</button>
+<button id="female" onclick="setGender('female')">女</button>
+</div>
+<label>身高 (厘米)</label>
+<input type="number" id="height" placeholder="例如：170" min="50" max="250"/>
+<label>体重 (公斤)</label>
+<input type="number" id="weight" placeholder="例如：65" min="10" max="300"/>
+<button class="btn" onclick="calcBMI()">计算BMI</button>
+<div class="result" id="result">
+<div class="bmi-num" id="bmi-num">--</div>
+<div class="bmi-label" id="bmi-label">--</div>
+<div class="bmi-range" id="bmi-range"></div>
+<div class="bar-wrap">
+<div class="bar">
+<span style="background:#3b82f6"></span>
+<span style="background:#22c55e"></span>
+<span style="background:#eab308"></span>
+<span style="background:#f97316"></span>
+<span style="background:#ef4444"></span>
+</div>
+<div class="pointer" id="pointer"></div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8">
+<span>偏瘦&lt;18.5</span><span>正常18.5-24</span><span>偏胖24-28</span><span>肥胖&gt;28</span>
+</div>
+<div id="ideal-weight" style="margin-top:12px;font-size:14px;color:#64748b"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>中国成人BMI标准</h3>
+<table>
+<thead><tr><th>分类</th><th>BMI范围</th><th>健康风险</th></tr></thead>
+<tbody>
+<tr><td>偏瘦</td><td>&lt;18.5</td><td>营养不良风险</td></tr>
+<tr><td>正常</td><td>18.5 ~ 23.9</td><td>低风险</td></tr>
+<tr><td>偏胖</td><td>24.0 ~ 27.9</td><td>中等风险</td></tr>
+<tr><td>肥胖</td><td>≥28.0</td><td>高风险</td></tr>
+</tbody>
+</table>
+</div>
+
+<section class="seo">
+<h2>什么是BMI?</h2>
+<p>BMI（Body Mass Index，身体质量指数）是国际通用的衡量人体胖瘦程度的标准。计算公式为：BMI = 体重(kg) ÷ 身高(m)²。中国成人正常BMI范围为18.5-23.9。</p>
+<h2>BMI计算公式</h2>
+<p>BMI = 体重(kg) ÷ 身高(m) ÷ 身高(m)</p>
+<p>例如：身高170cm，体重65kg → BMI = 65 ÷ 1.7 ÷ 1.7 = 22.5（正常）</p>
+<h2>常见问题</h2>
+<div class="faq"><h4>Q: BMI适用于所有人吗?</h4><p>BMI不适用于孕妇、运动员、肌肉量大的人群。这些人群应结合体脂率综合判断。</p></div>
+<div class="faq"><h4>Q: 中国标准和国际标准有什么不同?</h4><p>WHO标准正常范围为18.5-24.9，中国标准为18.5-23.9，中国标准更严格，因为亚洲人种在较低BMI时就可能出现健康风险。</p></div>
+<div class="faq"><h4>Q: BMI多少算标准体重?</h4><p>BMI在18.5-23.9之间为正常。中国成人推荐BMI为20-22。</p></div>
+</section>
+
+<h3>更多工具</h3>
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../age/">年龄计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><div class="container"><p>免费在线工具箱 · 实用工具永久免费</p></div></footer>
+
+<script>
+let gender='male';
+function setGender(g){gender=g;document.getElementById('male').classList.toggle('active',g==='male');document.getElementById('female').classList.toggle('active',g==='female')}
+function calcBMI(){
+const h=parseFloat(document.getElementById('height').value);
+const w=parseFloat(document.getElementById('weight').value);
+if(!h||!w||h<50||w<10){alert('请输入有效的身高和体重');return}
+const hm=h/100;
+const bmi=w/(hm*hm);
+const bmiRound=bmi.toFixed(1);
+document.getElementById('bmi-num').textContent=bmiRound;
+let label='',color='';
+if(bmi<18.5){label='偏瘦';color='#3b82f6'}
+else if(bmi<24){label='正常';color='#22c55e'}
+else if(bmi<28){label='偏胖';color='#eab308'}
+else{label='肥胖';color='#ef4444'}
+document.getElementById('bmi-label').textContent=label;
+document.getElementById('bmi-label').style.color=color;
+document.getElementById('bmi-range').textContent=`正常范围：18.5 - 23.9`;
+const pct=Math.min(Math.max((bmi-14)/24*100,0),100);
+document.getElementById('pointer').style.left='calc('+pct+'% - 2px)';
+const idealLow=(18.5*hm*hm).toFixed(1);
+const idealHigh=(23.9*hm*hm).toFixed(1);
+document.getElementById('ideal-weight').textContent=`你的健康体重范围：${idealLow} - ${idealHigh} kg`;
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+</body>
+</html>
