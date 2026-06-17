@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BMI计算器 - 在线免费计算身体质量指数 | 标准体重对照表</title>
+<meta name="description" content="免费在线BMI计算器，输入身高体重自动计算身体质量指数(BMI)，对照中国标准判断体重是否正常。附标准体重表和健康建议。"/>
+<meta name="keywords" content="BMI计算器,身体质量指数,标准体重,体重计算,健康体重,BMI计算公式"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"BMI计算器","applicationCategory":"HealthApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 0}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#2563eb}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#ecfdf5,#f0fdf4)}
+.hero h2{font-size:26px;margin-bottom:10px}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px}
+label{display:block;font-size:14px;color:#64748b;margin-bottom:4px;margin-top:12px}
+input[type=number]{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:16px;outline:none}
+input:focus{border-color:#2563eb}
+.btn{display:block;width:100%;background:#2563eb;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;cursor:pointer;margin-top:16px}
+.btn:hover{background:#1d4ed8}
+.result{display:none;margin-top:20px;padding:20px;border-radius:12px;text-align:center}
+.result .bmi-num{font-size:48px;font-weight:700}
+.result .bmi-label{font-size:20px;margin-top:8px}
+.result .bmi-range{font-size:14px;color:#64748b;margin-top:4px}
+.bar-wrap{margin:16px 0;position:relative;height:24px;border-radius:12px;overflow:hidden}
+.bar{display:flex;height:100%}
+.bar span{flex:1}
+.pointer{position:absolute;top:-4px;width:4px;height:32px;background:#1e293b;border-radius:2px;transition:left .5s}
+table{width:100%;border-collapse:collapse;margin:14px 0}
+th,td{padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;font-size:14px}
+th{background:#f8fafc;font-weight:600}
+.tips{margin-top:16px;text-align:left}
+.tips li{margin-bottom:8px;font-size:14px;color:#64748b}
+.seo{padding:28px 0}
+.seo h2{font-size:20px;margin-bottom:14px}
+.seo p{margin-bottom:10px;color:#64748b;font-size:14px}
+.faq{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.faq h4{font-size:14px;margin-bottom:4px}
+.faq p{font-size:13px;color:#64748b}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;color:#2563eb;text-decoration:none}
+footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+.gender-btns{display:flex;gap:10px;margin-top:8px}
+.gender-btns button{flex:1;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:15px;cursor:pointer}
+.gender-btns button.active{border-color:#2563eb;background:#eff6ff;color:#2563eb}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container"><h2>BMI计算器</h2><p>输入身高体重，计算身体质量指数，了解你的体重是否健康</p></div></section>
+<main class="container">
+<div class="card">
+<h3>输入信息</h3>
+<label>性别</label>
+<div class="gender-btns">
+<button id="male" class="active" onclick="setGender('male')">男</button>
+<button id="female" onclick="setGender('female')">女</button>
+</div>
+<label>身高 (厘米)</label>
+<input type="number" id="height" placeholder="例如：170" min="50" max="250"/>
+<label>体重 (公斤)</label>
+<input type="number" id="weight" placeholder="例如：65" min="10" max="300"/>
+<button class="btn" onclick="calcBMI()">计算BMI</button>
+<div class="result" id="result">
+<div class="bmi-num" id="bmi-num">--</div>
+<div class="bmi-label" id="bmi-label">--</div>
+<div class="bmi-range" id="bmi-range"></div>
+<div class="bar-wrap">
+<div class="bar">
+<span style="background:#3b82f6"></span>
+<span style="background:#22c55e"></span>
+<span style="background:#eab308"></span>
+<span style="background:#f97316"></span>
+<span style="background:#ef4444"></span>
+</div>
+<div class="pointer" id="pointer"></div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8">
+<span>偏瘦&lt;18.5</span><span>正常18.5-24</span><span>偏胖24-28</span><span>肥胖&gt;28</span>
+</div>
+<div id="ideal-weight" style="margin-top:12px;font-size:14px;color:#64748b"></div>
+</div>
+</div>
+
+<div class="card">
+<h3>中国成人BMI标准</h3>
+<table>
+<thead><tr><th>分类</th><th>BMI范围</th><th>健康风险</th></tr></thead>
+<tbody>
+<tr><td>偏瘦</td><td>&lt;18.5</td><td>营养不良风险</td></tr>
+<tr><td>正常</td><td>18.5 ~ 23.9</td><td>低风险</td></tr>
+<tr><td>偏胖</td><td>24.0 ~ 27.9</td><td>中等风险</td></tr>
+<tr><td>肥胖</td><td>≥28.0</td><td>高风险</td></tr>
+</tbody>
+</table>
+</div>
+
+<section class="seo">
+<h2>什么是BMI?</h2>
+<p>BMI（Body Mass Index，身体质量指数）是国际通用的衡量人体胖瘦程度的标准。计算公式为：BMI = 体重(kg) ÷ 身高(m)²。中国成人正常BMI范围为18.5-23.9。</p>
+<h2>BMI计算公式</h2>
+<p>BMI = 体重(kg) ÷ 身高(m) ÷ 身高(m)</p>
+<p>例如：身高170cm，体重65kg → BMI = 65 ÷ 1.7 ÷ 1.7 = 22.5（正常）</p>
+<h2>常见问题</h2>
+<div class="faq"><h4>Q: BMI适用于所有人吗?</h4><p>BMI不适用于孕妇、运动员、肌肉量大的人群。这些人群应结合体脂率综合判断。</p></div>
+<div class="faq"><h4>Q: 中国标准和国际标准有什么不同?</h4><p>WHO标准正常范围为18.5-24.9，中国标准为18.5-23.9，中国标准更严格，因为亚洲人种在较低BMI时就可能出现健康风险。</p></div>
+<div class="faq"><h4>Q: BMI多少算标准体重?</h4><p>BMI在18.5-23.9之间为正常。中国成人推荐BMI为20-22。</p></div>
+</section>
+
+<h3>更多工具</h3>
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../age/">年龄计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><div class="container"><p>免费在线工具箱 · 实用工具永久免费</p></div></footer>
+
+<script>
+let gender='male';
+function setGender(g){gender=g;document.getElementById('male').classList.toggle('active',g==='male');document.getElementById('female').classList.toggle('active',g==='female')}
+function calcBMI(){
+const h=parseFloat(document.getElementById('height').value);
+const w=parseFloat(document.getElementById('weight').value);
+if(!h||!w||h<50||w<10){alert('请输入有效的身高和体重');return}
+const hm=h/100;
+const bmi=w/(hm*hm);
+const bmiRound=bmi.toFixed(1);
+document.getElementById('bmi-num').textContent=bmiRound;
+let label='',color='';
+if(bmi<18.5){label='偏瘦';color='#3b82f6'}
+else if(bmi<24){label='正常';color='#22c55e'}
+else if(bmi<28){label='偏胖';color='#eab308'}
+else{label='肥胖';color='#ef4444'}
+document.getElementById('bmi-label').textContent=label;
+document.getElementById('bmi-label').style.color=color;
+document.getElementById('bmi-range').textContent=`正常范围：18.5 - 23.9`;
+const pct=Math.min(Math.max((bmi-14)/24*100,0),100);
+document.getElementById('pointer').style.left='calc('+pct+'% - 2px)';
+const idealLow=(18.5*hm*hm).toFixed(1);
+const idealHigh=(23.9*hm*hm).toFixed(1);
+document.getElementById('ideal-weight').textContent=`你的健康体重范围：${idealLow} - ${idealHigh} kg`;
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'center'});
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>年龄计算器 - 在线精确计算年龄 | 出生至今多少天</title>
+<meta name="description" content="免费在线年龄计算器，输入出生日期精确计算年龄到天数。计算距离下次生日还有几天、已活多少天、多少小时。"/>
+<meta name="keywords" content="年龄计算器,计算年龄,出生日期,活了多少天,下次生日,年龄计算"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"年龄计算器","applicationCategory":"UtilityApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 0}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#2563eb}
+.hero{text-align:center;padding:36px 16px;background:linear-gradient(135deg,#fdf4ff,#faf5ff)}
+.hero h2{font-size:26px;margin-bottom:10px}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px}
+label{display:block;font-size:14px;color:#64748b;margin-bottom:4px;margin-top:12px}
+input[type=date]{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:16px;outline:none}
+input:focus{border-color:#2563eb}
+.btn{display:block;width:100%;background:#2563eb;color:#fff;border:none;padding:12px;border-radius:8px;font-size:16px;cursor:pointer;margin-top:16px}
+.btn:hover{background:#1d4ed8}
+.result{display:none;margin-top:20px}
+.big-num{text-align:center;padding:20px;background:linear-gradient(135deg,#eff6ff,#f0f9ff);border-radius:12px;margin-bottom:16px}
+.big-num .num{font-size:52px;font-weight:700;color:#2563eb}
+.big-num .unit{font-size:18px;color:#64748b}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.grid-item{background:#f8fafc;border-radius:8px;padding:14px;text-align:center}
+.grid-item .val{font-size:24px;font-weight:600;color:#1e293b}
+.grid-item .lbl{font-size:13px;color:#64748b;margin-top:4px}
+.birthday-card{text-align:center;padding:20px;background:linear-gradient(135deg,#fefce8,#fef9c3);border-radius:12px;margin-top:16px}
+.birthday-card .days{font-size:40px;font-weight:700;color:#92400e}
+.zodiac{display:flex;align-items:center;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;margin-top:12px}
+.zodiac .emoji{font-size:32px}
+.zodiac .info{font-size:14px}
+.zodiac .info strong{display:block;font-size:16px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;font-size:13px;color:#2563eb;text-decoration:none}
+.seo{padding:28px 0}
+.seo h2{font-size:20px;margin-bottom:14px}
+.seo p{margin-bottom:10px;color:#64748b;font-size:14px}
+.faq{border-bottom:1px solid #e2e8f0;padding:14px 0}
+.faq h4{font-size:14px;margin-bottom:4px}
+.faq p{font-size:13px;color:#64748b}
+footer{background:#fff;border-top:1px solid #e2e8f0;padding:20px 0;text-align:center;color:#94a3b8;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container"><h2>年龄计算器</h2><p>精确计算你的年龄、已活天数、距离下次生日还有几天</p></div></section>
+<main class="container">
+<div class="card">
+<h3>输入出生日期</h3>
+<label>出生日期</label>
+<input type="date" id="birthdate"/>
+<button class="btn" onclick="calcAge()">计算年龄</button>
+</div>
+
+<div id="result" class="result">
+<div class="big-num">
+<div class="num" id="age-years">--</div>
+<div class="unit">岁</div>
+</div>
+
+<div class="grid">
+<div class="grid-item"><div class="val" id="age-detail"></div><div class="lbl">精确年龄</div></div>
+<div class="grid-item"><div class="val" id="total-days"></div><div class="lbl">已活天数</div></div>
+<div class="grid-item"><div class="val" id="total-hours"></div><div class="lbl">已活小时</div></div>
+<div class="grid-item"><div class="val" id="total-minutes"></div><div class="lbl">已活分钟</div></div>
+<div class="grid-item"><div class="val" id="total-heartbeats"></div><div class="lbl">心跳次数(约)</div></div>
+<div class="grid-item"><div class="val" id="weekdays"></div><div class="lbl">已过的周一</div></div>
+</div>
+
+<div class="birthday-card">
+<div style="font-size:14px;color:#92400e">距离下次生日还有</div>
+<div class="days" id="next-birthday">--</div>
+<div style="font-size:14px;color:#92400e" id="next-birthday-date"></div>
+</div>
+
+<div id="zodiac-info"></div>
+</div>
+
+<section class="seo">
+<h2>年龄计算器说明</h2>
+<p>本工具根据出生日期精确计算年龄，精确到天、小时、分钟。同时计算已活过的总天数、心跳次数等趣味数据，以及星座和生肖信息。</p>
+<h2>常见问题</h2>
+<div class="faq"><h4>Q: 年龄怎么算才准确?</h4><p>周岁 = 当前年份 - 出生年份，如果当年生日还没到则减1。本工具采用精确计算。</p></div>
+<div class="faq"><h4>Q: 为什么有虚岁和周岁之分?</h4><p>虚岁是中国传统计算方式，出生即为1岁，每过一个农历新年加1岁。周岁是国际通用标准。</p></div>
+<div class="faq"><h4>Q: 心跳次数是怎么估算的?</h4><p>按平均心率72次/分钟估算，实际因人而异。</p></div>
+</section>
+<h3>更多工具</h3>
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><div class="container"><p>免费在线工具箱 · 实用工具永久免费</p></div></footer>
+
+<script>
+const ZODIAC=[
+{m:1,d:20,name:'水瓶座',emoji:'♒'},{m:2,d:19,name:'双鱼座',emoji:'♓'},
+{m:3,d:21,name:'白羊座',emoji:'♈'},{m:4,d:20,name:'金牛座',emoji:'♉'},
+{m:5,d:21,name:'双子座',emoji:'♊'},{m:6,d:22,name:'巨蟹座',emoji:'♋'},
+{m:7,d:23,name:'狮子座',emoji:'♌'},{m:8,d:23,name:'处女座',emoji:'♍'},
+{m:9,d:23,name:'天秤座',emoji:'♎'},{m:10,d:24,name:'天蝎座',emoji:'♏'},
+{m:11,d:22,name:'射手座',emoji:'♐'},{m:12,d:22,name:'摩羯座',emoji:'♑'}
+];
+const SHENGXIAO=['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+
+function getZodiac(m,d){
+for(let i=ZODIAC.length-1;i>=0;i--){if(m>ZODIAC[i].m||(m===ZODIAC[i].m&&d>=ZODIAC[i].d))return ZODIAC[i]}
+return ZODIAC[11]
+}
+
+function calcAge(){
+const bd=new Date(document.getElementById('birthdate').value);
+if(isNaN(bd.getTime())){alert('请选择出生日期');return}
+const now=new Date();
+if(bd>now){alert('出生日期不能在未来');return}
+
+let years=now.getFullYear()-bd.getFullYear();
+let months=now.getMonth()-bd.getMonth();
+let days=now.getDate()-bd.getDate();
+if(days<0){months--;const prev=new Date(now.getFullYear(),now.getMonth(),0);days+=prev.getDate()}
+if(months<0){years--;months+=12}
+
+document.getElementById('age-years').textContent=years;
+document.getElementById('age-detail').textContent=`${years}岁${months}个月${days}天`;
+
+const totalMs=now-bd;
+const totalDays=Math.floor(totalMs/86400000);
+const totalHours=Math.floor(totalMs/3600000);
+const totalMinutes=Math.floor(totalMs/60000);
+const heartbeats=Math.floor(totalMinutes*72);
+
+document.getElementById('total-days').textContent=totalDays.toLocaleString();
+document.getElementById('total-hours').textContent=totalHours.toLocaleString();
+document.getElementById('total-minutes').textContent=totalMinutes.toLocaleString();
+document.getElementById('total-heartbeats').textContent=(heartbeats/10000).toFixed(0)+'万';
+document.getElementById('weekdays').textContent=Math.floor(totalDays/7).toLocaleString();
+
+// Next birthday
+const thisYearBday=new Date(now.getFullYear(),bd.getMonth(),bd.getDate());
+let nextBday=thisYearBday;
+if(thisYearBday<=now){nextBday=new Date(now.getFullYear()+1,bd.getMonth(),bd.getDate())}
+const daysUntil=Math.ceil((nextBday-now)/86400000);
+document.getElementById('next-birthday').textContent=daysUntil+' 天';
+document.getElementById('next-birthday-date').textContent=nextBday.toLocaleDateString('zh-CN');
+
+// Zodiac
+const z=getZodiac(bd.getMonth()+1,bd.getDate());
+const sx=SHENGXIAO[(bd.getFullYear()-1900)%12];
+document.getElementById('zodiac-info').innerHTML=`
+<div class="zodiac"><div class="emoji">${z.emoji}</div><div class="info"><strong>${z.name}</strong>生肖：${sx}年</div></div>`;
+
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>塔罗牌在线占卜 - 免费三牌阵占卜 | 爱情事业财运</title>
+<meta name="description" content="免费在线塔罗牌占卜，经典三牌阵解读过去现在未来。涵盖爱情、事业、财运等人生问题，每日一卦指引方向。"/>
+<meta name="keywords" content="塔罗牌在线占卜,免费塔罗牌,三牌阵,塔罗牌解读,爱情占卜,事业占卜,每日塔罗"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#0f0a1e;color:#e2d9f3;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:rgba(15,10,30,.9);border-bottom:1px solid #2d1f4e;padding:14px 0;position:sticky;top:0;z-index:100}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#c4a0ff}
+.hero{text-align:center;padding:40px 16px;background:radial-gradient(ellipse at center,#1a1040 0%,#0f0a1e 70%)}
+.hero h2{font-size:28px;color:#e2d9f3;margin-bottom:8px}
+.hero p{color:#8b7aaa;font-size:15px}
+.card{background:rgba(30,20,60,.6);border:1px solid #2d1f4e;border-radius:16px;padding:24px;margin:24px 0}
+.card h3{font-size:17px;margin-bottom:14px;color:#c4a0ff}
+.category-btns{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.category-btns button{padding:10px 20px;border:1px solid #2d1f4e;border-radius:20px;background:transparent;color:#e2d9f3;font-size:14px;cursor:pointer;transition:all .2s}
+.category-btns button:hover,.category-btns button.active{background:#c4a0ff;color:#0f0a1e;border-color:#c4a0ff}
+.draw-area{text-align:center;padding:30px 0}
+.cards-display{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:20px 0}
+.tarot-card{width:120px;height:180px;border-radius:12px;cursor:pointer;transition:all .5s;position:relative;perspective:600px}
+.tarot-card .front,.tarot-card .back{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;transition:transform .6s;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.tarot-card .front{background:linear-gradient(135deg,#2d1f4e,#4a2d8a);border:2px solid #c4a0ff;transform:rotateY(0)}
+.tarot-card .front .star{font-size:40px}
+.tarot-card .front .label{font-size:12px;color:#8b7aaa;margin-top:6px}
+.tarot-card .back{background:linear-gradient(135deg,#1a1040,#2d1f4e);border:2px solid #c4a0ff;transform:rotateY(180deg);padding:10px;text-align:center}
+.tarot-card .back .emoji{font-size:36px}
+.tarot-card .back .name{font-size:13px;color:#c4a0ff;margin-top:4px}
+.tarot-card.flipped .front{transform:rotateY(180deg)}
+.tarot-card.flipped .back{transform:rotateY(0)}
+.tarot-card:hover{transform:translateY(-6px);box-shadow:0 8px 24px rgba(196,160,255,.2)}
+.tarot-card.flipped:hover{transform:translateY(-6px)}
+.draw-btn{background:linear-gradient(135deg,#c4a0ff,#8b5cf6);color:#0f0a1e;border:none;padding:14px 40px;border-radius:30px;font-size:17px;cursor:pointer;font-weight:600;transition:all .3s;margin:16px 0}
+.draw-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(196,160,255,.4)}
+.draw-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result-section{display:none;margin-top:20px}
+.result-card{text-align:left;padding:16px;background:rgba(15,10,30,.4);border:1px solid #2d1f4e;border-radius:12px;margin:12px 0}
+.result-card h4{color:#c4a0ff;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.result-card p{font-size:14px;color:#b8a8d6}
+.keywords{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.keywords span{padding:4px 10px;background:rgba(196,160,255,.1);border:1px solid #2d1f4e;border-radius:12px;font-size:12px;color:#c4a0ff}
+.overall{text-align:center;padding:20px;background:linear-gradient(135deg,rgba(196,160,255,.1),rgba(139,92,246,.1));border-radius:12px;margin-top:16px}
+.overall h3{color:#c4a0ff;margin-bottom:8px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:rgba(196,160,255,.1);border:1px solid #2d1f4e;border-radius:20px;font-size:13px;color:#c4a0ff;text-decoration:none}
+footer{text-align:center;padding:24px 0;color:#4a3670;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../" style="color:#c4a0ff"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container">
+<h2>🔮 塔罗牌在线占卜</h2><p>静下心来，思考你的问题，然后翻牌</p>
+</div></section>
+<main class="container">
+<div class="card">
+<h3>选择占卜方向</h3>
+<div class="category-btns" id="categories">
+<button class="active" data-cat="love">💕 爱情</button>
+<button data-cat="career">💼 事业</button>
+<button data-cat="money">💰 财运</button>
+<button data-cat="general">🌟 综合</button>
+</div>
+</div>
+
+<div class="card">
+<h3>经典三牌阵 — 过去 · 现在 · 未来</h3>
+<p style="font-size:14px;color:#8b7aaa;margin-bottom:12px">心中默念你的问题，然后点击"开始占卜"</p>
+<div class="draw-area">
+<div class="cards-display" id="cards-display">
+<div class="tarot-card" id="card0"><div class="front"><div class="star">✨</div><div class="label">过去</div></div><div class="back"><div class="emoji" id="emoji0"></div><div class="name" id="name0"></div></div></div>
+<div class="tarot-card" id="card1"><div class="front"><div class="star">✨</div><div class="label">现在</div></div><div class="back"><div class="emoji" id="emoji1"></div><div class="name" id="name1"></div></div></div>
+<div class="tarot-card" id="card2"><div class="front"><div class="star">✨</div><div class="label">未来</div></div><div class="back"><div class="emoji" id="emoji2"></div><div class="name" id="name2"></div></div></div>
+</div>
+<button class="draw-btn" id="draw-btn" onclick="drawCards()">开始占卜 🔮</button>
+</div>
+</div>
+
+<div class="result-section" id="result-section">
+<div class="card" id="result-cards"></div>
+<div class="card overall" id="overall-reading"></div>
+<div class="card" style="text-align:center">
+<button class="draw-btn" onclick="resetDraw()">再占一次</button>
+</div>
+</div>
+
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../age/">年龄计算器</a>
+<a href="../horoscope/">星座运势</a>
+</div>
+</main>
+<footer><p>塔罗牌占卜仅供娱乐参考 · 免费在线工具箱</p></footer>
+
+<script>
+const TAROT=[
+{name:'愚者',emoji:'🃏',upright:'新的开始，冒险精神，天真无邪',reversed:'鲁莽，不计后果，犹豫不决',keywords:['新开始','冒险','自由']},
+{name:'魔术师',emoji:'🎩',upright:'创造力，意志力，技能',reversed:'欺骗，能力不足，浪费才华',keywords:['创造','行动','自信']},
+{name:'女祭司',emoji:'🌙',upright:'直觉，潜意识，内在智慧',reversed:'忽视直觉，表面化，信息隐藏',keywords:['直觉','神秘','内在']},
+{name:'女皇',emoji:'👑',upright:'丰收，母爱，美丽',reversed:'过度依赖，创意枯竭',keywords:['丰盛','关爱','美']},
+{name:'皇帝',emoji:'🏛️',upright:'权威，结构，掌控力',reversed:'独裁，僵化，过度控制',keywords:['权力','稳定','领导']},
+{name:'教皇',emoji:'📿',upright:'传统，信仰，指导',reversed:'叛逆，非传统，打破常规',keywords:['信仰','传统','指引']},
+{name:'恋人',emoji:'💕',upright:'爱情，选择，和谐',reversed:'不和谐，价值观冲突，错误选择',keywords:['爱情','选择','和谐']},
+{name:'战车',emoji:'🏇',upright:'胜利，意志力，决心',reversed:'失控，攻击性，方向迷失',keywords:['胜利','决心','前进']},
+{name:'力量',emoji:'🦁',upright:'内在力量，勇气，耐心',reversed:'自我怀疑，虚弱，恐惧',keywords:['勇气','力量','耐心']},
+{name:'隐士',emoji:'🏔️',upright:'内省，孤独，寻找真理',reversed:'孤立，固执，逃避现实',keywords:['沉思','独处','智慧']},
+{name:'命运之轮',emoji:'🎡',upright:'命运，转折，好运',reversed:'坏运气，抗拒变化，失控',keywords:['命运','转变','机会']},
+{name:'正义',emoji:'⚖️',upright:'公正，真相，因果',reversed:'不公正，不负责任，逃避',keywords:['公正','平衡','真相']},
+{name:'倒吊人',emoji:'🔄',upright:'牺牲，新视角，等待',reversed:'拖延，无谓牺牲，自我受害',keywords:['等待','换个角度','放手']},
+{name:'死神',emoji:'🦋',upright:'结束，转变，新生',reversed:'抗拒变化，停滞，恐惧结束',keywords:['转变','结束','重生']},
+{name:'节制',emoji:'🏺',upright:'平衡，耐心，适度',reversed:'失衡，过度，缺乏耐心',keywords:['平衡','和谐','调和']},
+{name:'恶魔',emoji:'😈',upright:'束缚，欲望，物质主义',reversed:'释放，打破束缚，重获自由',keywords:['诱惑','束缚','觉醒']},
+{name:'塔',emoji:'🗼',upright:'突变，破坏，觉醒',reversed:'逃避灾难，恐惧变化',keywords:['突变','破坏','启示']},
+{name:'星星',emoji:'⭐',upright:'希望，灵感，平静',reversed:'绝望，失去信心',keywords:['希望','灵感','治愈']},
+{name:'月亮',emoji:'🌙',upright:'幻觉，恐惧，潜意识',reversed:'释放恐惧，走出迷茫',keywords:['直觉','迷惑','潜意识']},
+{name:'太阳',emoji:'☀️',upright:'快乐，成功，活力',reversed:'暂时的挫折，过度乐观',keywords:['快乐','成功','光明']},
+{name:'审判',emoji:'📯',upright:'觉醒，重生，反思',reversed:'自我怀疑，拒绝成长',keywords:['觉醒','审视','重生']},
+{name:'世界',emoji:'🌍',upright:'完成，整合，成就',reversed:'未完成，缺乏收尾',keywords:['完成','圆满','成就']},
+];
+
+let selectedCat='love';
+let drawnCards=[];
+
+document.getElementById('categories').addEventListener('click',e=>{
+if(e.target.tagName==='BUTTON'){
+document.querySelectorAll('#categories button').forEach(b=>b.classList.remove('active'));
+e.target.classList.add('active');
+selectedCat=e.target.dataset.cat;
+}
+});
+
+function drawCards(){
+const btn=document.getElementById('draw-btn');
+btn.disabled=true;
+drawnCards=[];
+// Shuffle and pick 3
+const deck=[...TAROT].sort(()=>Math.random()-.5);
+const positions=['upright','reversed','upright'];
+for(let i=0;i<3;i++){
+const card=deck[i];
+const reversed=Math.random()>.6;
+drawnCards.push({...card,reversed,position:i});
+}
+
+// Flip animation
+[0,1,2].forEach((i,idx)=>{
+setTimeout(()=>{
+const el=document.getElementById('card'+i);
+el.classList.add('flipped');
+document.getElementById('emoji'+i).textContent=drawnCards[i].emoji;
+document.getElementById('name'+i).textContent=drawnCards[i].name+(drawnCards[i].reversed?' (逆位)':'');
+},400*(idx+1));
+});
+
+setTimeout(showResult,2000);
+}
+
+function showResult(){
+const labels=['过去','现在','未来'];
+const catNames={love:'爱情',career:'事业',money:'财运',general:'综合'};
+let html='<h3>塔罗牌解读</h3>';
+drawnCards.forEach((c,i)=>{
+const meaning=c.reversed?c.reversed:c.upright;
+const posLabel=c.reversed?'逆位':'正位';
+html+=`<div class="result-card">
+<h4>${labels[i]}：${c.emoji} ${c.name}（${posLabel}）</h4>
+<p><strong>含义：</strong>${meaning}</p>
+<p><strong>${catNames[selectedCat]}解读：</strong>${getReading(c,selectedCat)}</p>
+<div class="keywords">${c.keywords.map(k=>'<span>'+k+'</span>').join('')}</div>
+</div>`;
+});
+
+html+=`<div class="overall">
+<h3>综合解读</h3>
+<p>${getOverallReading(drawnCards,selectedCat)}</p>
+</div>`;
+
+document.getElementById('result-cards').innerHTML=html;
+document.getElementById('result-section').style.display='block';
+document.getElementById('result-section').scrollIntoView({behavior:'smooth'});
+}
+
+function getReading(card,cat){
+const readings={
+love:{
+'愚者':'一段新恋情即将开始，保持开放心态','魔术师':'你有吸引爱情的能力，主动出击','女祭司':'倾听内心的声音，不要急于行动',
+'恋人':'面临重要的感情选择','战车':'在感情中需要更多主动和决心','力量':'用温柔和耐心对待感情问题',
+'命运之轮':'感情运势即将转变','死神':'一段旧感情结束，新的开始','太阳':'感情生活充满阳光和快乐',
+'星星':'对爱情保持希望','月亮':'感情中有需要澄清的误会','世界':'感情即将圆满',
+},
+career:{
+'魔术师':'你拥有成功的所有技能，大胆行动','皇帝':'适合承担领导角色','战车':'事业上有突破性进展',
+'隐士':'需要独处思考职业方向','命运之轮':'事业转机即将到来','塔':'工作环境将有重大变化',
+'星星':'事业前景光明','太阳':'事业上的成功和认可','世界':'项目即将圆满完成',
+},
+money:{
+'女皇':'财运亨通，收入增加','皇帝':'财务需要更有规划','命运之轮':'财运即将好转',
+'恶魔':'注意消费欲望，避免过度消费','星星':'财务前景乐观','太阳':'财运旺盛',
+}
+};
+const fallback=card.upright;
+return (readings[cat]&&readings[cat][card.name])||fallback+'，请结合自身情况思考';
+}
+
+function getOverallReading(cards,cat){
+const catText={love:'爱情',career:'事业',money:'财运',general:'人生'};
+const hasReversed=cards.some(c=>c.reversed);
+const names=cards.map(c=>c.name);
+
+if(names.includes('太阳'))return `太阳牌出现，预示着${catText[cat]}方面将迎来光明和积极的转变。保持乐观，好运就在前方。`;
+if(names.includes('星星'))return `星星牌指引方向，说明当前虽有困难但前景是光明的。保持信念，继续前行。`;
+if(names.includes('塔'))return `塔牌提示可能面临突变，但这往往是通向更好方向的必经之路。接受变化，积极应对。`;
+if(names.includes('世界'))return `世界牌象征圆满，你正在接近一个重要的里程碑。坚持下去，收获就在眼前。`;
+if(names.includes('命运之轮'))return `命运之轮转动，意味着${catText[cat]}方面将迎来重要转变。把握机遇，顺势而为。`;
+
+if(hasReversed)return `三张牌中出现逆位，提示你需要反思当前的做法。换个角度看问题，可能会发现新的解决之道。`;
+return `三张牌组合来看，你在${catText[cat]}方面正处在一个平衡的状态。保持内心的平静，跟随直觉的指引，答案自然会浮现。`;
+}
+
+function resetDraw(){
+[0,1,2].forEach(i=>{document.getElementById('card'+i).classList.remove('flipped')});
+document.getElementById('result-section').style.display='none';
+document.getElementById('draw-btn').disabled=false;
+window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>星座运势查询 - 今日运势 | 12星座性格配对</title>
+<meta name="description" content="免费查询12星座今日运势、性格特点和配对分析。白羊座到双鱼座全面解读，每日更新运势指引。"/>
+<meta name="keywords" content="星座运势,今日运势,12星座,星座配对,星座性格,白羊座,天蝎座,射手座"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:#0c1445;color:#e0e7ff;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+header{background:rgba(12,20,69,.9);border-bottom:1px solid #1e3a8a;padding:14px 0;position:sticky;top:0;z-index:100}
+header a{text-decoration:none;color:inherit}
+header h1{font-size:20px;color:#93c5fd}
+.hero{text-align:center;padding:36px 16px;background:radial-gradient(ellipse at center,#1e1b4b,#0c1445)}
+.hero h2{font-size:28px;margin-bottom:8px}
+.hero p{color:#7c8cc4;font-size:15px}
+.card{background:rgba(30,27,75,.6);border:1px solid #1e3a8a;border-radius:16px;padding:24px;margin:20px 0}
+.card h3{font-size:17px;color:#93c5fd;margin-bottom:14px}
+.zodiac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px}
+.zodiac-btn{background:rgba(30,58,138,.3);border:1px solid #1e3a8a;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.zodiac-btn:hover,.zodiac-btn.active{background:rgba(147,197,253,.2);border-color:#93c5fd;transform:translateY(-2px)}
+.zodiac-btn .icon{font-size:28px}
+.zodiac-btn .name{font-size:13px;color:#93c5fd;margin-top:4px}
+.zodiac-btn .date{font-size:11px;color:#7c8cc4}
+.result-area{display:none}
+.stars{display:flex;gap:4px;margin:8px 0}
+.stars .star{font-size:20px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.info-item{background:rgba(12,20,69,.4);padding:12px;border-radius:8px}
+.info-item .label{font-size:12px;color:#7c8cc4}
+.info-item .value{font-size:15px;color:#e0e7ff;margin-top:4px}
+.fortune-section{margin:16px 0}
+.fortune-section h4{color:#93c5fd;font-size:15px;margin-bottom:8px}
+.fortune-section p{font-size:14px;color:#b8c4e8}
+.match-card{display:flex;align-items:center;gap:16px;padding:14px;background:rgba(30,58,138,.2);border-radius:12px;margin:10px 0}
+.match-card .emoji{font-size:32px}
+.match-card .info{flex:1}
+.match-card .info strong{color:#93c5fd}
+.match-card .info p{font-size:13px;color:#7c8cc4;margin-top:2px}
+.nav-links{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.nav-links a{padding:6px 14px;background:rgba(147,197,253,.1);border:1px solid #1e3a8a;border-radius:20px;font-size:13px;color:#93c5fd;text-decoration:none}
+footer{text-align:center;padding:24px 0;color:#3b4a8a;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="container"><a href="../" style="color:#93c5fd"><h1>免费在线工具箱</h1></a></div></header>
+<section class="hero"><div class="container">
+<h2>✨ 星座运势查询</h2><p>选择你的星座，查看今日运势和性格解读</p>
+</div></section>
+<main class="container">
+<div class="card">
+<h3>选择你的星座</h3>
+<div class="zodiac-grid" id="zodiac-grid"></div>
+</div>
+
+<div class="result-area" id="result">
+<div class="card" id="basic-info"></div>
+<div class="card" id="today-fortune"></div>
+<div class="card" id="personality"></div>
+<div class="card" id="match-info"></div>
+</div>
+
+<div class="nav-links">
+<a href="../">证件照制作</a>
+<a href="../bmi/">BMI计算器</a>
+<a href="../age/">年龄计算器</a>
+<a href="../tarot/">塔罗牌占卜</a>
+</div>
+</main>
+<footer><p>星座运势仅供娱乐参考 · 免费在线工具箱</p></footer>
+
+<script>
+const SIGNS=[
+{name:'白羊座',emoji:'♈',element:'火',date:'3.21-4.19',planet:'火星',trait:'热情、勇敢、直率'},
+{name:'金牛座',emoji:'♉',element:'土',date:'4.20-5.20',planet:'金星',trait:'稳重、务实、享受'},
+{name:'双子座',emoji:'♊',element:'风',date:'5.21-6.21',planet:'水星',trait:'聪明、好奇、善变'},
+{name:'巨蟹座',emoji:'♋',element:'水',date:'6.22-7.22',planet:'月亮',trait:'温柔、顾家、敏感'},
+{name:'狮子座',emoji:'♌',element:'火',date:'7.23-8.22',planet:'太阳',trait:'自信、大方、领导力'},
+{name:'处女座',emoji:'♍',element:'土',date:'8.23-9.22',planet:'水星',trait:'细心、完美主义、务实'},
+{name:'天秤座',emoji:'♎',element:'风',date:'9.23-10.23',planet:'金星',trait:'优雅、和平、社交'},
+{name:'天蝎座',emoji:'♏',element:'水',date:'10.24-11.22',planet:'冥王星',trait:'神秘、洞察力、执着'},
+{name:'射手座',emoji:'♐',element:'火',date:'11.23-12.21',planet:'木星',trait:'乐观、自由、探索'},
+{name:'摩羯座',emoji:'♑',element:'土',date:'12.22-1.19',planet:'土星',trait:'坚韧、有野心、自律'},
+{name:'水瓶座',emoji:'♒',element:'风',date:'1.20-2.18',planet:'天王星',trait:'独立、创新、博爱'},
+{name:'双鱼座',emoji:'♓',element:'水',date:'2.19-3.20',planet:'海王星',trait:'浪漫、直觉、同理心'},
+];
+
+const FORTUNES={
+love:['今天桃花运旺盛，可能会收到意外的告白','感情中有小惊喜，注意身边人的暗示','适合主动出击，表达内心感受','感情稳定，适合和伴侣深入交流','单身者有机会遇到有趣的人','今天适合独处，整理感情思绪','旧情可能复燃，三思而后行','恋爱中的人会有甜蜜时刻','可能因为小事产生误会，及时沟通','今天魅力四射，吸引异性目光','感情中有新的可能性出现','浪漫的一天，适合表白或约会'],
+career:['工作上有新机会，大胆抓住','适合处理积压的任务','团队合作顺利，效率翻倍','可能面临挑战，但你能应对自如','创意灵感爆发的一天','适合学习新技能','贵人运旺，可能得到领导赏识','适合做长期规划','注意细节，避免粗心犯错','谈判运佳，适合谈合作','工作效率高，适合攻坚','适合跳出舒适区尝试新事物'],
+money:['财运平稳，不宜大额消费','可能有意外收入','投资需谨慎，保守为主','适合制定理财计划','花钱欲望强，注意控制','购物运佳，能淘到好东西','偏财运不错','适合存钱，不宜借贷','可能有意外支出','正财运旺，努力有回报','适合研究新的赚钱方式','理性消费，避免冲动购物'],
+health:['精力充沛，适合运动','注意休息，不要过度劳累','适合做体检或健康检查','心情愉快，身心状态好','注意饮食健康','适合户外活动','睡眠质量可能下降，注意作息','身体状态良好','注意颈椎和腰椎','适合做瑜伽或冥想','多喝水，注意补水','适合调整生活作息'],
+};
+
+const MATCHES={
+'白羊座':['狮子座','射手座','双子座'],'金牛座':['处女座','摩羯座','巨蟹座'],
+'双子座':['天秤座','水瓶座','白羊座'],'巨蟹座':['天蝎座','双鱼座','金牛座'],
+'狮子座':['白羊座','射手座','天秤座'],'处女座':['金牛座','摩羯座','天蝎座'],
+'天秤座':['双子座','水瓶座','狮子座'],'天蝎座':['巨蟹座','双鱼座','处女座'],
+'射手座':['白羊座','狮子座','水瓶座'],'摩羯座':['金牛座','处女座','双鱼座'],
+'水瓶座':['双子座','天秤座','射手座'],'双鱼座':['巨蟹座','天蝎座','摩羯座'],
+};
+
+const grid=document.getElementById('zodiac-grid');
+SIGNS.forEach((s,i)=>{
+const btn=document.createElement('div');
+btn.className='zodiac-btn';
+btn.innerHTML=`<div class="icon">${s.emoji}</div><div class="name">${s.name}</div><div class="date">${s.date}</div>`;
+btn.onclick=()=>{document.querySelectorAll('.zodiac-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showSign(i)};
+grid.appendChild(btn);
+});
+
+function seedRandom(seed){
+let x=Math.sin(seed)*10000;
+return x-Math.floor(x);
+}
+
+function getTodaySeed(name){
+const d=new Date();
+return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()+name.charCodeAt(0);
+}
+
+function showSign(idx){
+const s=SIGNS[idx];
+const seed=getTodaySeed(s.name);
+const r=(cat)=>Math.floor(seedRandom(seed+cat.charCodeAt(0))*12);
+const loveR=r('L')+1,careerR=r('C')+1,moneyR=r('M')+1,healthR=r('H')+1;
+const overall=Math.round((loveR+careerR+moneyR+healthR)/4);
+
+function starHTML(n){return Array.from({length:5},(_,i)=>`<span class="star">${i<n?'⭐':'☆'}</span>`).join('')}
+
+document.getElementById('basic-info').innerHTML=`
+<h3>${s.emoji} ${s.name}</h3>
+<div class="info-grid">
+<div class="info-item"><div class="label">日期</div><div class="value">${s.date}</div></div>
+<div class="info-item"><div class="label">元素</div><div class="value">${s.element}</div></div>
+<div class="info-item"><div class="label">守护星</div><div class="value">${s.planet}</div></div>
+<div class="info-item"><div class="label">今日综合</div><div class="value">${starHTML(overall)}</div></div>
+</div>`;
+
+const fIdx=Math.floor(seed*100)%12;
+document.getElementById('today-fortune').innerHTML=`
+<h3>今日运势</h3>
+<div class="fortune-section"><h4>💕 爱情 ${starHTML(loveR)}</h4><p>${FORTUNES.love[fIdx]}</p></div>
+<div class="fortune-section"><h4>💼 事业 ${starHTML(careerR)}</h4><p>${FORTUNES.career[fIdx]}</p></div>
+<div class="fortune-section"><h4>💰 财运 ${starHTML(moneyR)}</h4><p>${FORTUNES.money[fIdx]}</p></div>
+<div class="fortune-section"><h4>🏥 健康 ${starHTML(healthR)}</h4><p>${FORTUNES.health[fIdx]}</p></div>
+<div style="font-size:12px;color:#7c8cc4;margin-top:12px">幸运数字：${Math.floor(seedRandom(seed+99)*9)+1} · 幸运颜色：${['红色','蓝色','绿色','紫色','橙色','粉色','白色','金色'][Math.floor(seedRandom(seed+88)*8)]}</div>`;
+
+document.getElementById('personality').innerHTML=`
+<h3>性格特点</h3>
+<p style="font-size:14px;color:#b8c4e8">${s.trait}</p>
+<p style="font-size:14px;color:#b8c4e8;margin-top:8px">${getPersonalityText(s.name)}</p>`;
+
+const matches=MATCHES[s.name];
+document.getElementById('match-info').innerHTML=`
+<h3>最佳配对</h3>
+${matches.map(m=>{
+const ms=SIGNS.find(x=>x.name===m);
+return `<div class="match-card"><div class="emoji">${ms.emoji}</div><div class="info"><strong>${m}</strong><p>${getMatchText(s.name,m)}</p></div></div>`;
+}).join('')}`;
+
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth'});
+}
+
+function getPersonalityText(name){
+const texts={
+'白羊座':'白羊座是十二星座的开路先锋，天生具有领导力和冒险精神。你们热情似火，行动力强，但有时会显得冲动。在困难面前从不退缩，是最勇敢的战士。',
+'金牛座':'金牛座是最踏实可靠的星座，对美和舒适有着天生的追求。你们忠诚、有耐心，是朋友和伴侣的最佳选择。但有时过于固执，需要学会变通。',
+'双子座':'双子座是天生的交际花，聪明机智，口才出众。你们对世界充满好奇心，学习能力超强。但有时兴趣太广泛，需要学会专注。',
+'巨蟹座':'巨蟹座是最有家庭观念的星座，温柔体贴，重视情感。你们记忆力超强，对朋友和家人无比忠诚。但有时过于敏感，需要学会保护自己。',
+'狮子座':'狮子座是天生的王者，自信大方，光芒四射。你们慷慨、热情，总能成为人群中的焦点。但有时需要学会倾听他人的声音。',
+'处女座':'处女座是最追求完美的星座，做事认真细致，分析能力超强。你们务实、可靠，是最值得信赖的伙伴。但有时对自己和他人过于苛刻。',
+'天秤座':'天秤座是最优雅的星座，追求和谐与平衡。你们社交能力出众，审美品味一流。但有时过于纠结，需要学会果断做决定。',
+'天蝎座':'天蝎座是最有深度的星座，洞察力极强，直觉敏锐。你们忠诚、有魅力，一旦认定就全力以赴。但有时需要学会放下和原谅。',
+'射手座':'射手座是最自由的星座，乐观开朗，热爱冒险。你们幽默、真诚，总能给身边的人带来快乐。但有时需要学会承担责任。',
+'摩羯座':'摩羯座是最有毅力的星座，目标明确，脚踏实地。你们可靠、有耐心，是最值得信赖的合作伙伴。但有时需要学会放松享受生活。',
+'水瓶座':'水瓶座是最独立的星座，思维超前，创意无限。你们博爱、公正，总是站在时代前沿。但有时显得冷漠，需要表达内心的情感。',
+'双鱼座':'双鱼座是最有同理心的星座，直觉敏锐，想象力丰富。你们温柔、浪漫，总能理解他人的感受。但有时需要学会保护自己的能量。',
+};
+return texts[name]||'';
+}
+
+function getMatchText(a,b){
+const pairs={
+'白羊座-狮子座':'两个火象星座相遇，激情四射，互相欣赏对方的勇气和自信。',
+'白羊座-射手座':'充满冒险精神的组合，一起探索世界，永远不会无聊。',
+'白羊座-双子座':'活泼有趣的搭配，思维碰撞出精彩的火花。',
+'金牛座-处女座':'两个土象星座的完美组合，踏实稳定，细水长流。',
+'金牛座-摩羯座':'最稳固的配对之一，共同追求安全感和美好生活。',
+'金牛座-巨蟹座':'温馨甜蜜的组合，家的感觉让彼此安心。',
+'双子座-天秤座':'风象星座的最佳拍档，沟通无障碍，互相理解。',
+'双子座-水瓶座':'充满创意和新鲜感的组合，永远不会感到无聊。',
+'巨蟹座-天蝎座':'水象星座的深度连接，情感共鸣强烈。',
+'巨蟹座-双鱼座':'最浪漫的配对，彼此理解对方敏感的内心。',
+'狮子座-射手座':'火象星座的热情组合，一起发光发热。',
+'狮子座-天秤座':'优雅与力量的完美结合，互相欣赏。',
+'处女座-摩羯座':'务实的完美主义者组合，互相扶持。',
+'处女座-天蝎座':'深度与细节的结合，互相吸引。',
+'天秤座-水瓶座':'优雅与独立的风象组合，精神共鸣。',
+'天蝎座-双鱼座':'最深情的配对，灵魂层面的连接。',
+'射手座-水瓶座':'自由与创新的组合，一起追求理想。',
+'摩羯座-双鱼座':'互补的配对，现实与浪漫的平衡。',
+};
+return pairs[a+'-'+b]||pairs[b+'-'+a]||'星座之间有着奇妙的缘分，互相吸引又互相成长。';
+}
+</script>
+</body>
+</html>
